@@ -1,0 +1,16 @@
+{
+  "name": "mcptoskill",
+  "version": "0.1.0",
+  "description": "Turn any MCP server into an OpenClaw skill",
+  "type": "module",
+  "bin": {
+    "mcptoskill": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0"
+  }
+}
