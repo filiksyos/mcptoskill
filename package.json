@@ -4,13 +4,33 @@
   "description": "Turn any MCP server into an OpenClaw skill",
   "type": "module",
   "bin": {
-    "mcptoskill": "./src/index.ts"
+    "mcptoskill": "./dist/index.js"
   },
   "scripts": {
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "prepublishOnly": "pnpm build"
   },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "openclaw",
+    "skill",
+    "agent",
+    "ai",
+    "cli"
+  ],
+  "author": "mcptoskill",
+  "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "tsx": "^4.19.0"
+    "@types/node": "^25.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
   }
 }

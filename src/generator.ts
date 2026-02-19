@@ -1,4 +1,4 @@
-import type { McpClientResult, Tool, ToolParam } from "./client.ts";
+import type { McpClientResult, Tool, ToolParam } from "./client.js";
 
 function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");

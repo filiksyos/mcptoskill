@@ -1,8 +1,8 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 import { mkdir, writeFile, chmod } from "node:fs/promises";
 import { join } from "node:path";
-import { connectAndDiscover } from "./client.ts";
-import { generate } from "./generator.ts";
+import { connectAndDiscover } from "./client.js";
+import { generate } from "./generator.js";
 
 function parseArgs(argv: string[]): { url: string; name?: string; outDir: string } {
   const args = argv.slice(2);
