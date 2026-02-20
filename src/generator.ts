@@ -45,7 +45,10 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     })
     .join("\n\n");
 
-  const metadataJson = JSON.stringify({ clawdbot: {} });
+  const metadataJson = JSON.stringify({
+    clawdbot: {},
+    openclaw: { requires: { bins: ["curl"] } },
+  });
 
   return [
     "---",
