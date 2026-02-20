@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, writeFile, chmod, readFile } from "node:fs/promises";
+import { mkdir, writeFile, chmod, readFile, copyFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { existsSync } from "node:fs";
@@ -22,6 +22,8 @@ function parseArgs(argv: string[]): { url: string; name?: string; outDir: string
     console.error("Examples:");
     console.error("  mcptoskill https://mcp.context7.com/mcp");
     console.error("  mcptoskill https://mcp.context7.com/mcp --name=context7 --out=./skills");
+    console.error("");
+    console.error("Also installs local ./scripts/<skill-name>.sh for integrations.");
     process.exit(1);
   }
 
@@ -57,6 +59,11 @@ async function updateOpenClawConfig(skillName: string): Promise<void> {
   }
   load.watch = true;
   skills.load = load;
+
+  const watcher = ((skills.watcher ?? {}) as Record<string, unknown>);
+  watcher.enabled = true;
+  skills.watcher = watcher;
+
   config.skills = skills;
 
   await writeFile(OPENCLAW_CONFIG, JSON.stringify(config, null, 2) + "\n", "utf8");
@@ -87,6 +94,13 @@ async function main() {
   await writeFile(skillMdPath, skillMd, "utf8");
   await writeFile(scriptPath, shellScript, "utf8");
   await chmod(scriptPath, 0o755);
+
+  const localScriptsDir = join(process.cwd(), "scripts");
+  await mkdir(localScriptsDir, { recursive: true });
+  const localScriptPath = join(localScriptsDir, `${skillName}.sh`);
+  await copyFile(scriptPath, localScriptPath);
+  await chmod(localScriptPath, 0o755);
+  console.log(`✓ Copied to local workspace: ${localScriptPath}`);
 
   const isOpenClawInstall = resolve(outDir) === resolve(OPENCLAW_SKILLS_DIR);
 
