@@ -52,6 +52,7 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     `name: ${skillName}`,
     `description: ${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`,
     `homepage: ${serverUrl}`,
+    `allowed-tools: Bash(curl:*)`,
     `metadata: ${metadataJson}`,
     "---",
     "",
