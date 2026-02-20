@@ -55,6 +55,7 @@ async function updateOpenClawConfig(skillName: string): Promise<void> {
     extraDirs.push(OPENCLAW_SKILLS_DIR);
     load.extraDirs = extraDirs;
   }
+  load.watch = true;
   skills.load = load;
   config.skills = skills;
 
