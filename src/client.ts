@@ -38,6 +38,23 @@ function extractParams(inputSchema: Record<string, unknown>): ToolParam[] {
   }));
 }
 
+async function parseJsonResponse<T>(res: Response): Promise<T> {
+  const contentType = res.headers.get("content-type") ?? "";
+  const text = await res.text();
+
+  if (contentType.includes("text/event-stream")) {
+    // SSE format: one or more "data: {...}" lines — take the last data line
+    const dataLine = text
+      .split("\n")
+      .filter((l) => l.startsWith("data: "))
+      .pop();
+    if (!dataLine) throw new Error("SSE response had no data lines");
+    return JSON.parse(dataLine.slice(6)) as T;
+  }
+
+  return JSON.parse(text) as T;
+}
+
 export async function connectAndDiscover(serverUrl: string): Promise<McpClientResult> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -66,12 +83,9 @@ export async function connectAndDiscover(serverUrl: string): Promise<McpClientRe
 
   const sessionId = initRes.headers.get("mcp-session-id");
 
-  const initData = await initRes.json() as {
-    result: {
-      serverInfo: McpServerInfo;
-      instructions?: string;
-    };
-  };
+  const initData = await parseJsonResponse<{
+    result: { serverInfo: McpServerInfo; instructions?: string };
+  }>(initRes);
 
   const serverInfo: McpServerInfo = {
     ...initData.result.serverInfo,
@@ -98,7 +112,7 @@ export async function connectAndDiscover(serverUrl: string): Promise<McpClientRe
     throw new Error(`tools/list failed: ${toolsRes.status} ${toolsRes.statusText}`);
   }
 
-  const toolsData = await toolsRes.json() as {
+  const toolsData = await parseJsonResponse<{
     result: {
       tools: Array<{
         name: string;
@@ -106,7 +120,7 @@ export async function connectAndDiscover(serverUrl: string): Promise<McpClientRe
         inputSchema: Record<string, unknown>;
       }>;
     };
-  };
+  }>(toolsRes);
 
   const tools: Tool[] = toolsData.result.tools.map((t) => ({
     name: t.name,
