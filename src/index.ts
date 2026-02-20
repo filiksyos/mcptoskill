@@ -59,11 +59,6 @@ async function updateOpenClawConfig(skillName: string): Promise<void> {
   }
   load.watch = true;
   skills.load = load;
-
-  const watcher = ((skills.watcher ?? {}) as Record<string, unknown>);
-  watcher.enabled = true;
-  skills.watcher = watcher;
-
   config.skills = skills;
 
   await writeFile(OPENCLAW_CONFIG, JSON.stringify(config, null, 2) + "\n", "utf8");
