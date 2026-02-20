@@ -22,6 +22,7 @@ export interface McpClientResult {
   tools: Tool[];
   sessionId: string | null;
   serverUrl: string;
+  extraHeaders: Record<string, string>;
 }
 
 function extractParams(inputSchema: Record<string, unknown>): ToolParam[] {
@@ -55,10 +56,14 @@ async function parseJsonResponse<T>(res: Response): Promise<T> {
   return JSON.parse(text) as T;
 }
 
-export async function connectAndDiscover(serverUrl: string): Promise<McpClientResult> {
+export async function connectAndDiscover(
+  serverUrl: string,
+  extraHeaders: Record<string, string> = {}
+): Promise<McpClientResult> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "Accept": "application/json, text/event-stream",
+    ...extraHeaders,
   };
 
   // Step 1: initialize
@@ -128,5 +133,5 @@ export async function connectAndDiscover(serverUrl: string): Promise<McpClientRe
     params: extractParams(t.inputSchema),
   }));
 
-  return { serverInfo, tools, sessionId, serverUrl };
+  return { serverInfo, tools, sessionId, serverUrl, extraHeaders };
 }
