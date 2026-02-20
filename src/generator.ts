@@ -50,10 +50,13 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     openclaw: { requires: { bins: ["curl"] } },
   });
 
+  const desc = `${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`;
+  const escapedDesc = desc.replace(/"/g, '\\"');
+
   return [
     "---",
     `name: ${skillName}`,
-    `description: ${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`,
+    `description: "${escapedDesc}"`,
     `homepage: ${serverUrl}`,
     `allowed-tools: Bash(curl:*)`,
     `metadata: ${metadataJson}`,
