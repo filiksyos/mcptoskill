@@ -39,7 +39,7 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
         "",
         ...(paramLines.length > 0 ? ["**Parameters:**", ...paramLines, ""] : []),
         "```bash",
-        `{baseDir}/scripts/${skillName}.sh ${t.name} ${exampleArgs}`,
+        `$HOME/.openclaw/skills/${skillName}/scripts/${skillName}.sh ${t.name} ${exampleArgs}`,
         "```",
       ].join("\n");
     })
@@ -69,7 +69,7 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     "## Quick Start",
     "",
     "```bash",
-    `{baseDir}/scripts/${skillName}.sh <tool-name> '<json-args>'`,
+    `$HOME/.openclaw/skills/${skillName}/scripts/${skillName}.sh <tool-name> '<json-args>'`,
     "```",
     "",
     "## Tools",
