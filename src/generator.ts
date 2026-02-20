@@ -80,8 +80,13 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     .trim() + "\n";
 }
 
+function curlHeaderLines(extraHeaders: Record<string, string>): string[] {
+  return Object.entries(extraHeaders).map(([k, v]) => `  -H "${k}: ${v}" \\`);
+}
+
 function generateShellScript(result: McpClientResult, skillName: string): string {
-  const { serverUrl } = result;
+  const { serverUrl, extraHeaders } = result;
+  const headerLines = curlHeaderLines(extraHeaders);
 
   const initBody = JSON.stringify({
     jsonrpc: "2.0",
@@ -111,6 +116,7 @@ function generateShellScript(result: McpClientResult, skillName: string): string
     "curl -s -X POST \"$MCP_URL\" \\",
     "  -H \"Content-Type: application/json\" \\",
     "  -H \"Accept: application/json, text/event-stream\" \\",
+    ...headerLines,
     "  -D \"$TEMP_HEADERS\" \\",
     `  -d '${initBody}' > /dev/null`,
     "",
@@ -122,12 +128,14 @@ function generateShellScript(result: McpClientResult, skillName: string): string
     "  RESPONSE=$(curl -s -X POST \"$MCP_URL\" \\",
     "    -H \"Content-Type: application/json\" \\",
     "    -H \"Accept: application/json, text/event-stream\" \\",
+    ...headerLines.map((l) => l.replace(/^  /, "    ")),
     "    -H \"Mcp-Session-Id: $SESSION_ID\" \\",
     `    -d "{\\"jsonrpc\\":\\"2.0\\",\\"id\\":1,\\"method\\":\\"tools/call\\",\\"params\\":{\\"name\\":\\"$TOOL_NAME\\",\\"arguments\\":$ARGS}}")`,
     "else",
     "  RESPONSE=$(curl -s -X POST \"$MCP_URL\" \\",
     "    -H \"Content-Type: application/json\" \\",
     "    -H \"Accept: application/json, text/event-stream\" \\",
+    ...headerLines.map((l) => l.replace(/^  /, "    ")),
     `    -d "{\\"jsonrpc\\":\\"2.0\\",\\"id\\":1,\\"method\\":\\"tools/call\\",\\"params\\":{\\"name\\":\\"$TOOL_NAME\\",\\"arguments\\":$ARGS}}")`,
     "fi",
     "",

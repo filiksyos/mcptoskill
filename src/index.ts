@@ -10,18 +10,40 @@ const OPENCLAW_DIR = join(homedir(), ".openclaw");
 const OPENCLAW_SKILLS_DIR = join(OPENCLAW_DIR, "skills");
 const OPENCLAW_CONFIG = join(OPENCLAW_DIR, "openclaw.json");
 
-function parseArgs(argv: string[]): { url: string; name?: string; outDir: string } {
+function parseArgs(argv: string[]): {
+  url: string;
+  name?: string;
+  outDir: string;
+  headers: Record<string, string>;
+} {
   const args = argv.slice(2);
   const url = args.find((a) => !a.startsWith("--"));
   const nameFlag = args.find((a) => a.startsWith("--name="));
   const outFlag = args.find((a) => a.startsWith("--out="));
+  const headers: Record<string, string> = {};
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--header" && args[i + 1]) {
+      const headerStr = args[++i];
+      const colonIdx = headerStr.indexOf(":");
+      if (colonIdx > 0) {
+        const key = headerStr.slice(0, colonIdx).trim();
+        const value = headerStr.slice(colonIdx + 1).trim();
+        if (key && value) headers[key] = value;
+      } else {
+        console.error(`Invalid header format: "${headerStr}". Expected "Key: Value"`);
+        process.exit(1);
+      }
+    }
+  }
 
   if (!url) {
-    console.error("Usage: mcptoskill <mcp-server-url> [--name=<skill-name>] [--out=<output-dir>]");
+    console.error("Usage: mcptoskill <mcp-server-url> [--name=<skill-name>] [--out=<output-dir>] [--header \"Key: Value\"]");
     console.error("");
     console.error("Examples:");
     console.error("  mcptoskill https://mcp.context7.com/mcp");
     console.error("  mcptoskill https://mcp.context7.com/mcp --name=context7 --out=./skills");
+    console.error("  mcptoskill https://mcp.supabase.com/mcp?project_ref=XXX --header \"Authorization: Bearer sbp_xxx\"");
     console.error("");
     console.error("Also installs local ./scripts/<skill-name>.sh for integrations.");
     process.exit(1);
@@ -31,6 +53,7 @@ function parseArgs(argv: string[]): { url: string; name?: string; outDir: string
     url,
     name: nameFlag?.split("=")[1],
     outDir: outFlag?.split("=")[1] ?? OPENCLAW_SKILLS_DIR,
+    headers,
   };
 }
 
@@ -65,11 +88,11 @@ async function updateOpenClawConfig(skillName: string): Promise<void> {
 }
 
 async function main() {
-  const { url, name, outDir } = parseArgs(process.argv);
+  const { url, name, outDir, headers } = parseArgs(process.argv);
 
   console.log(`Connecting to ${url} ...`);
 
-  const result = await connectAndDiscover(url);
+  const result = await connectAndDiscover(url, headers);
 
   console.log(`Found: ${result.serverInfo.name} v${result.serverInfo.version} — ${result.tools.length} tool(s)`);
   for (const t of result.tools) {
