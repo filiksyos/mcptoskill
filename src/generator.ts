@@ -39,19 +39,26 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
         "",
         ...(paramLines.length > 0 ? ["**Parameters:**", ...paramLines, ""] : []),
         "```bash",
-        `{baseDir}/scripts/${skillName}.sh ${t.name} ${exampleArgs}`,
+        `$HOME/.openclaw/skills/${skillName}/scripts/${skillName}.sh ${t.name} ${exampleArgs}`,
         "```",
       ].join("\n");
     })
     .join("\n\n");
 
-  const metadataJson = JSON.stringify({ clawdbot: {} });
+  const metadataJson = JSON.stringify({
+    clawdbot: {},
+    openclaw: { requires: { bins: ["curl"] } },
+  });
+
+  const desc = `${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`;
+  const escapedDesc = desc.replace(/"/g, '\\"');
 
   return [
     "---",
     `name: ${skillName}`,
-    `description: ${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`,
+    `description: "${escapedDesc}"`,
     `homepage: ${serverUrl}`,
+    `allowed-tools: Bash(curl:*)`,
     `metadata: ${metadataJson}`,
     "---",
     "",
@@ -62,7 +69,7 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     "## Quick Start",
     "",
     "```bash",
-    `{baseDir}/scripts/${skillName}.sh <tool-name> '<json-args>'`,
+    `$HOME/.openclaw/skills/${skillName}/scripts/${skillName}.sh <tool-name> '<json-args>'`,
     "```",
     "",
     "## Tools",
@@ -112,16 +119,23 @@ function generateShellScript(result: McpClientResult, skillName: string): string
     "",
     "# Call the tool",
     "if [ -n \"$SESSION_ID\" ]; then",
-    "  curl -s -X POST \"$MCP_URL\" \\",
+    "  RESPONSE=$(curl -s -X POST \"$MCP_URL\" \\",
     "    -H \"Content-Type: application/json\" \\",
     "    -H \"Accept: application/json, text/event-stream\" \\",
     "    -H \"Mcp-Session-Id: $SESSION_ID\" \\",
-    `    -d "{\\"jsonrpc\\":\\"2.0\\",\\"id\\":1,\\"method\\":\\"tools/call\\",\\"params\\":{\\"name\\":\\"$TOOL_NAME\\",\\"arguments\\":$ARGS}}"`,
+    `    -d "{\\"jsonrpc\\":\\"2.0\\",\\"id\\":1,\\"method\\":\\"tools/call\\",\\"params\\":{\\"name\\":\\"$TOOL_NAME\\",\\"arguments\\":$ARGS}}")`,
     "else",
-    "  curl -s -X POST \"$MCP_URL\" \\",
+    "  RESPONSE=$(curl -s -X POST \"$MCP_URL\" \\",
     "    -H \"Content-Type: application/json\" \\",
     "    -H \"Accept: application/json, text/event-stream\" \\",
-    `    -d "{\\"jsonrpc\\":\\"2.0\\",\\"id\\":1,\\"method\\":\\"tools/call\\",\\"params\\":{\\"name\\":\\"$TOOL_NAME\\",\\"arguments\\":$ARGS}}"`,
+    `    -d "{\\"jsonrpc\\":\\"2.0\\",\\"id\\":1,\\"method\\":\\"tools/call\\",\\"params\\":{\\"name\\":\\"$TOOL_NAME\\",\\"arguments\\":$ARGS}}")`,
+    "fi",
+    "",
+    "# Handle SSE format (event: message / data: {...}) or plain JSON",
+    "if echo \"$RESPONSE\" | grep -q '^data: '; then",
+    "  echo \"$RESPONSE\" | grep '^data: ' | tail -1 | sed 's/^data: //'",
+    "else",
+    "  echo \"$RESPONSE\"",
     "fi",
     "",
   ];
