@@ -17,7 +17,7 @@
 npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skill-name>] [--out=<output-dir>]
 ```
 
-**Flags** — Markdown table:
+**Flags**
 
 | Flag | Description |
 |---|---|
@@ -26,7 +26,7 @@ npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skil
 | `--name=<name>` | Override the generated skill name |
 | `--out=<dir>` | Output directory (default: `~/.openclaw/skills/`) |
 
-**Examples** — three numbered fenced code blocks:
+**Examples**
 
 1. Context7 (no auth):
 
