@@ -55,8 +55,8 @@ npx @filiksyos/mcptoskill "https://mcp.exa.ai/mcp?exaApiKey=YOUR_KEY"
 
 ## Web Page
 
-[https://mcptoskill.vercel.app](https://mcptoskill.vercel.app)
+[https://mcptoskill.com](https://mcptoskill.com)
 
 Generate the correct CLI command for any MCP server without leaving your browser.
 
-**Contributing** — Fork the repo → edit `index.html` → open a pull request.
+**Contributing** — Fork the repo → edit → open a pull request.
