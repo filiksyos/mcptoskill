@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mcptoskill — MCP to OpenClaw Skill</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 0; }
+    header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 1rem 2rem;
+    }
+    .wrapper { max-width: 640px; margin: 0 auto; padding: 2rem 1rem; }
+    #examples {
+      margin-top: 2rem;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="https://github.com/filiksyos/mcptoskill">GitHub</a>
+  </header>
+  <div class="wrapper">
+    <h1>mcptoskill</h1>
+    <p>Generate the correct CLI command for any MCP server.</p>
+    <form id="form">
+      <label for="url">MCP Server URL</label>
+      <input type="url" id="url" placeholder="https://mcp.example.com/mcp" required>
+      <button type="submit">Generate</button>
+    </form>
+    <div id="examples">
+      <h2>Examples</h2>
+      <div class="card">
+        <strong>Context7</strong>
+        <p>No auth required.</p>
+      </div>
+      <div class="card">
+        <strong>Supabase</strong>
+        <p>Bearer token auth.</p>
+      </div>
+      <div class="card">
+        <strong>Exa MCP</strong>
+        <p>API key in URL.</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const url = document.getElementById('url').value;
+      alert('npx @filiksyos/mcptoskill "' + url + '"');
+    });
+  </script>
+</body>
+</html>
