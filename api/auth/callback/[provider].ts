@@ -44,7 +44,7 @@ export default async function handler(
     };
     if (provider.tokenEncoding === "basic") {
       headers["Authorization"] =
-        "Basic " + btoa(clientId + ":" + clientSecret);
+        "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
     }
 
     const tokenRes = await fetch(provider.tokenUrl, {
