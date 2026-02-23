@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP to Skill</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      .wrapper {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+
+      header {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+
+      header a {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      #hero {
+        text-align: center;
+        padding: 3rem 0 2rem;
+      }
+
+      #form-section {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+      }
+
+      label span {
+        font-weight: normal;
+        color: #666;
+      }
+
+      input[type="url"],
+      input[type="text"] {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .error {
+        color: red;
+        font-size: 0.85rem;
+        display: none;
+        margin-top: 0.25rem;
+      }
+
+      .error.visible {
+        display: block;
+      }
+
+      small {
+        display: block;
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 1rem;
+      }
+
+      #generate-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: #000;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      #output-section {
+        display: none;
+        margin-top: 2rem;
+      }
+
+      .output-box {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+
+      .output-box .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .output-box pre {
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      #copy-btn {
+        padding: 0.35rem 0.75rem;
+        background: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      #examples {
+        margin-top: 2rem;
+        max-width: 520px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #examples h2 {
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+      }
+
+      .cards-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .card {
+        flex: 1;
+        min-width: 140px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        cursor: pointer;
+      }
+
+      .card:hover {
+        border-color: #999;
+      }
+
+      .card strong {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .badge {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #f0f0f0;
+      }
+
+      #success-section {
+        display: none;
+        max-width: 520px;
+        margin: 0 auto 1.5rem;
+        padding: 1.25rem 1.5rem;
+        border: 1px solid #86efac;
+        border-radius: 10px;
+        background: #f0fdf4;
+      }
+
+      #success-check {
+        color: #16a34a;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+
+      .success-cmd-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: #fff;
+        border: 1px solid #d1fae5;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+      }
+
+      .success-cmd-box code {
+        font-family: monospace;
+        font-size: 0.82rem;
+        color: #111;
+        word-break: break-all;
+        flex: 1;
+      }
+
+      #success-copy-btn {
+        padding: 0.3rem 0.7rem;
+        background: #16a34a;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+      }
+
+      .success-hint {
+        font-size: 0.8rem;
+        color: #555;
+        margin: 0.6rem 0 0;
+      }
+
+      #oauth-section {
+        max-width: 520px;
+        margin: 0 auto 1.5rem;
+        padding: 1rem 0;
+      }
+
+      #oauth-section h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+
+      .provider-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+        width: 100%;
+        padding: 0.65rem 1rem;
+        margin-bottom: 0.5rem;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #111;
+        font-size: 0.95rem;
+      }
+
+      .provider-btn:hover {
+        border-color: #999;
+      }
+
+      .provider-btn .btn-arrow {
+        color: #999;
+        margin-left: auto;
+        font-size: 0.8rem;
+      }
+
+      .or-divider {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        max-width: 520px;
+        margin: 0 auto 1.5rem;
+        font-size: 0.85rem;
+        color: #999;
+      }
+
+      .or-divider::before,
+      .or-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e5e5e5;
+      }
+
+      @media (max-width: 480px) {
+        .cards-row {
+          flex-direction: column;
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #111;
+          color: #eee;
+        }
+
+        label span {
+          color: #999;
+        }
+
+        input[type="url"],
+        input[type="text"] {
+          border-color: #444;
+          background: #222;
+          color: #eee;
+        }
+
+        small {
+          color: #999;
+        }
+
+        #generate-btn {
+          background: #fff;
+          color: #000;
+        }
+
+        .output-box {
+          border-color: #444;
+        }
+
+        #copy-btn {
+          background: #333;
+          border-color: #444;
+          color: #eee;
+        }
+
+        .card {
+          border-color: #444;
+        }
+
+        .card:hover {
+          border-color: #666;
+        }
+
+        .badge {
+          background: #333;
+        }
+
+        #success-section {
+          background: #052e16;
+          border-color: #86efac;
+        }
+
+        .success-cmd-box {
+          background: #111;
+          border-color: #d1fae5;
+        }
+
+        .success-cmd-box code {
+          color: #eee;
+        }
+
+        .success-hint {
+          color: #999;
+        }
+
+        .provider-btn {
+          background: #222;
+          border-color: #444;
+          color: #eee;
+        }
+
+        .provider-btn:hover {
+          border-color: #666;
+        }
+
+        .or-divider {
+          color: #999;
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+          background: #333;
+        }
+      }
+    </style>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="https://github.com/filiksyos/mcptoskill" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        Github
+      </a>
+    </header>
+    <div class="wrapper">
+      <section id="hero">
+        <h1>MCP to Skill</h1>
+        <p>Turn any MCP server into an openclaw skill with one command</p>
+      </section>
+
+      <section id="success-section">
+        <p id="success-check"></p>
+        <div class="success-cmd-box">
+          <code id="success-cmd"></code>
+          <button id="success-copy-btn" type="button">Copy</button>
+        </div>
+        <p class="success-hint">Run this on your OpenClaw environment</p>
+      </section>
+
+      <section id="oauth-section">
+        <h2>Connect with OAuth</h2>
+        <a class="provider-btn" href="/api/auth/notion">🔲 Continue with Notion <span class="btn-arrow">→</span></a>
+        <a class="provider-btn" href="/api/auth/linear">🔲 Continue with Linear <span class="btn-arrow">→</span></a>
+        <a class="provider-btn" href="/api/auth/slack">🔲 Continue with Slack <span class="btn-arrow">→</span></a>
+        <a class="provider-btn" href="/api/auth/supabase">🔲 Continue with Supabase <span class="btn-arrow">→</span></a>
+      </section>
+
+      <div class="or-divider">or enter manually</div>
+
+      <section id="form-section">
+        <label for="url-input">Endpoint URL</label>
+        <input id="url-input" type="url" required placeholder="https://mcp.example.com/mcp" />
+        <p id="url-error" class="error">Please enter an MCP server URL</p>
+
+        <label for="token-input">Auth Token <span>(optional)</span></label>
+        <input id="token-input" type="text" />
+        <small>Bearer token value only — e.g. sbp_xxx</small>
+
+        <button id="generate-btn" type="button">Generate Command</button>
+      </section>
+
+      <section id="output-section">
+        <div class="output-box">
+          <div class="header-row">
+            <span>Your command</span>
+            <button id="copy-btn">Copy</button>
+          </div>
+          <pre id="command-output"></pre>
+        </div>
+        <p>Run this on your OpenClaw environment</p>
+      </section>
+
+      <hr />
+
+      <section id="examples">
+        <h2>Example Servers</h2>
+        <div class="cards-row">
+          <div class="card" data-url="https://mcp.context7.com/mcp" data-token="">
+            <strong>Context7</strong>
+            <span class="badge">No auth</span>
+          </div>
+          <div class="card" data-url="https://mcp.exa.ai/mcp?exaApiKey=YOUR_KEY" data-token="">
+            <strong>Exa MCP</strong>
+            <span class="badge">Key in URL</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        (function () {
+          var params = new URLSearchParams(window.location.search);
+          var key = params.get('key');
+          var provider = params.get('provider');
+          var name = params.get('name') || '';
+          if (key && provider) {
+            var mcpUrls = {
+              notion: 'https://mcp.notion.com/mcp',
+              linear: 'https://mcp.linear.app/mcp',
+              slack: 'https://mcp.slack.com/mcp',
+              supabase: 'https://mcp.supabase.com/mcp'
+            };
+            var mcpUrl = mcpUrls[provider] || '';
+            if (mcpUrl) {
+              var providerLabel = provider.charAt(0).toUpperCase() + provider.slice(1);
+              var checkText = '✓ ' + providerLabel + ' connected';
+              if (name) checkText += ' — ' + name;
+              document.getElementById('success-check').textContent = checkText;
+              var cmd = 'npx @filiksyos/mcptoskill ' + mcpUrl + ' --skill-key ' + key;
+              document.getElementById('success-cmd').textContent = cmd;
+              document.getElementById('success-section').style.display = 'block';
+              history.replaceState({}, '', '/');
+              var successCopyBtn = document.getElementById('success-copy-btn');
+              successCopyBtn.addEventListener('click', function () {
+                navigator.clipboard.writeText(cmd).then(function () {
+                  successCopyBtn.textContent = 'Copied!';
+                  setTimeout(function () {
+                    successCopyBtn.textContent = 'Copy';
+                  }, 2000);
+                });
+              });
+            }
+          }
+        })();
+        var urlInput = document.getElementById('url-input');
+        var tokenInput = document.getElementById('token-input');
+        var urlError = document.getElementById('url-error');
+        var generateBtn = document.getElementById('generate-btn');
+        var commandOutput = document.getElementById('command-output');
+        var outputSection = document.getElementById('output-section');
+        var copyBtn = document.getElementById('copy-btn');
+        var formSection = document.getElementById('form-section');
+        var cards = document.querySelectorAll('#examples .card');
+
+        generateBtn.addEventListener('click', function () {
+          var url = urlInput.value.trim();
+          var token = tokenInput.value.trim();
+
+          if (!url) {
+            urlError.classList.add('visible');
+            return;
+          }
+
+          urlError.classList.remove('visible');
+
+          var command;
+          if (token) {
+            command = 'npx @filiksyos/mcptoskill ' + url + ' --header "Authorization: Bearer ' + token + '"';
+          } else {
+            command = 'npx @filiksyos/mcptoskill ' + url;
+          }
+
+          commandOutput.textContent = command;
+          outputSection.style.display = 'block';
+        });
+
+        copyBtn.addEventListener('click', function () {
+          navigator.clipboard.writeText(commandOutput.textContent).then(function () {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(function () {
+              copyBtn.textContent = 'Copy';
+            }, 2000);
+          });
+        });
+
+        cards.forEach(function (card) {
+          card.addEventListener('click', function () {
+            urlInput.value = card.dataset.url || '';
+            tokenInput.value = card.dataset.token || '';
+            outputSection.style.display = 'none';
+            urlError.classList.remove('visible');
+            formSection.scrollIntoView({ behavior: 'smooth' });
+            urlInput.focus();
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
