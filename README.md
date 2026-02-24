@@ -14,7 +14,7 @@
 **Usage** — full command signature:
 
 ```
-npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skill-name>] [--out=<output-dir>]
+npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skill-name>] [--out=<output-dir>] [--skill-key=<key>]
 ```
 
 **Flags**
@@ -23,6 +23,7 @@ npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skil
 |---|---|
 | `<url>` | MCP server endpoint URL (required) |
 | `--header "Key: Value"` | Add an HTTP header (repeatable for multiple headers) |
+| `--skill-key=<key>` | Skill key from [mcptoskill.com](https://mcptoskill.com) OAuth flow (e.g. Notion). One-time use. |
 | `--name=<name>` | Override the generated skill name |
 | `--out=<dir>` | Output directory (default: `~/.openclaw/skills/`) |
 
@@ -45,6 +46,14 @@ npx @filiksyos/mcptoskill "https://mcp.supabase.com/mcp?project_ref=YOUR_REF" --
 ```
 npx @filiksyos/mcptoskill "https://mcp.exa.ai/mcp?exaApiKey=YOUR_KEY"
 ```
+
+4. Notion (OAuth via [mcptoskill.com](https://mcptoskill.com) — connect, then run the generated command):
+
+```
+npx @filiksyos/mcptoskill https://mcp.notion.com/mcp --skill-key sk_live_xxx
+```
+
+**Skill keys (OAuth)** — Keys from mcptoskill.com are one-time use. The first install consumes the key; it cannot be used again. Re-installing on another machine requires re-authenticating at mcptoskill.com. No tokens are stored long-term on mcptoskill.com.
 
 **What gets generated** — two files are created inside `~/.openclaw/skills/<skill-name>/`:
 
