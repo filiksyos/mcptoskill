@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service — MCP to Skill</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .wrapper {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+      header a {
+        text-decoration: none;
+        color: inherit;
+      }
+      header a:hover { text-decoration: underline; }
+      h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+      h2 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+      p { margin: 0 0 0.75rem; line-height: 1.6; }
+      small { font-size: 0.85rem; color: #666; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #111; color: #eee; }
+        small { color: #999; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/">← Back to MCP to Skill</a>
+    </header>
+    <div class="wrapper">
+      <h1>Terms of Service</h1>
+      <p><small>Last updated: February 2025</small></p>
+
+      <h2>Acceptance</h2>
+      <p>
+        By using MCP to Skill (the website and CLI tool), you agree to these terms.
+      </p>
+
+      <h2>Service Description</h2>
+      <p>
+        MCP to Skill helps you connect MCP-compatible servers (e.g., Notion, Linear, Slack,
+        Supabase) to OpenClaw by generating appropriate commands and, when you choose OAuth,
+        facilitating the authorization flow. The service is provided “as is.”
+      </p>
+
+      <h2>Use of OAuth</h2>
+      <p>
+        When you connect via OAuth, you authorize us to obtain access tokens on your behalf
+        from the respective provider. You are responsible for complying with each provider’s
+        terms and acceptable use policies.
+      </p>
+
+      <h2>No Warranty</h2>
+      <p>
+        MCP to Skill is offered without warranty of any kind. We do not guarantee uptime,
+        correctness of generated commands, or compatibility with any MCP server or OpenClaw setup.
+      </p>
+
+      <h2>Limitation of Liability</h2>
+      <p>
+        To the extent permitted by law, we are not liable for any damages arising from your
+        use of the service, including but not limited to data loss or misuse of credentials.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For questions about these terms, open an issue at
+        <a href="https://github.com/filiksyos/mcptoskill">github.com/filiksyos/mcptoskill</a>.
+      </p>
+    </div>
+  </body>
+</html>
