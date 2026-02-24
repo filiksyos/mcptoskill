@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { redisGet } from "../_redis.js";
+import { redisGet, redisDel } from "../_redis.js";
 
 interface SkillKeyRecord {
   access_token: string;
@@ -19,6 +19,7 @@ export default async function handler(
   res.setHeader("Content-Type", "application/json");
 
   if (record) {
+    await redisDel("sk:" + skillKey);
     res.status(200).json({
       access_token: record.access_token,
       mcp_url: record.mcp_url,
