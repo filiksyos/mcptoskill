@@ -15,11 +15,13 @@ function parseArgs(argv: string[]): {
   name?: string;
   outDir: string;
   headers: Record<string, string>;
+  skillKey?: string;
 } {
   const args = argv.slice(2);
   const url = args.find((a) => !a.startsWith("--"));
   const nameFlag = args.find((a) => a.startsWith("--name="));
   const outFlag = args.find((a) => a.startsWith("--out="));
+  const skillKeyFlag = args.find((a) => a.startsWith("--skill-key="));
   const headers: Record<string, string> = {};
 
   for (let i = 0; i < args.length; i++) {
@@ -38,7 +40,7 @@ function parseArgs(argv: string[]): {
   }
 
   if (!url) {
-    console.error("Usage: mcptoskill <mcp-server-url> [--name=<skill-name>] [--out=<output-dir>] [--header \"Key: Value\"]");
+    console.error("Usage: mcptoskill <mcp-server-url> [--name=<skill-name>] [--out=<output-dir>] [--header \"Key: Value\"] [--skill-key=<key>]");
     console.error("");
     console.error("Examples:");
     console.error("  mcptoskill https://mcp.context7.com/mcp");
@@ -54,6 +56,7 @@ function parseArgs(argv: string[]): {
     name: nameFlag?.split("=")[1],
     outDir: outFlag?.split("=")[1] ?? OPENCLAW_SKILLS_DIR,
     headers,
+    skillKey: skillKeyFlag?.split("=")[1],
   };
 }
 
@@ -88,7 +91,32 @@ async function updateOpenClawConfig(skillName: string): Promise<void> {
 }
 
 async function main() {
-  const { url, name, outDir, headers } = parseArgs(process.argv);
+  const { url, name, outDir, headers, skillKey } = parseArgs(process.argv);
+
+  if (skillKey) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    try {
+      const res = await fetch(`https://mcptoskill.com/api/token/${skillKey}`, {
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        console.error("Error: skill key not found — visit mcptoskill.com to reconnect");
+        process.exit(1);
+      }
+      const data = (await res.json()) as {
+        access_token: string;
+        mcp_url: string;
+        provider: string;
+      };
+      headers["Authorization"] = `Bearer ${data.access_token}`;
+    } catch {
+      console.error("Error: skill key not found — visit mcptoskill.com to reconnect");
+      process.exit(1);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
   console.log(`Connecting to ${url} ...`);
 
