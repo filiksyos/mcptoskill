@@ -1,8 +1,5 @@
 {
   "buildCommand": "",
   "outputDirectory": ".",
-  "framework": null,
-  "functions": {
-    "api/**/*.ts": {}
-  }
+  "framework": null
 }
