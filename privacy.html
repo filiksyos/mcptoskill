@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — MCP to Skill</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .wrapper {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+      }
+      header a {
+        text-decoration: none;
+        color: inherit;
+      }
+      header a:hover { text-decoration: underline; }
+      h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+      h2 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+      p { margin: 0 0 0.75rem; line-height: 1.6; }
+      small { font-size: 0.85rem; color: #666; }
+      @media (prefers-color-scheme: dark) {
+        body { background: #111; color: #eee; }
+        small { color: #999; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/">← Back to MCP to Skill</a>
+    </header>
+    <div class="wrapper">
+      <h1>Privacy Policy</h1>
+      <p><small>Last updated: February 2025</small></p>
+
+      <h2>Overview</h2>
+      <p>
+        MCP to Skill allows you to connect MCP (Model Context Protocol) servers to OpenClaw.
+        When you use OAuth to connect services like Notion, Linear, Slack, or Supabase, we
+        exchange authorization codes for access tokens and store them briefly to enable your
+        skill setup.
+      </p>
+
+      <h2>Data We Process</h2>
+      <p>
+        <strong>OAuth tokens:</strong> Access tokens obtained via OAuth are stored temporarily
+        in a secure key-value store to complete the connection flow. They are used only to
+        generate the CLI command for your OpenClaw environment and are not retained long-term.
+      </p>
+      <p>
+        <strong>Redirect URLs and state:</strong> OAuth state values are stored briefly during
+        the authorization flow to prevent CSRF and are deleted after use.
+      </p>
+
+      <h2>Third-Party Services</h2>
+      <p>
+        OAuth is handled by each provider (Notion, Linear, Slack, Supabase). Their respective
+        privacy policies apply to data you share with them during authorization.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For privacy-related questions, open an issue at
+        <a href="https://github.com/filiksyos/mcptoskill">github.com/filiksyos/mcptoskill</a>.
+      </p>
+    </div>
+  </body>
+</html>
