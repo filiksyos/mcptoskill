@@ -22,6 +22,7 @@ function parseArgs(argv: string[]): {
   const nameFlag = args.find((a) => a.startsWith("--name="));
   const outFlag = args.find((a) => a.startsWith("--out="));
   const skillKeyFlag = args.find((a) => a.startsWith("--skill-key="));
+  const skillKeyIdx = args.findIndex((a) => a === "--skill-key");
   const headers: Record<string, string> = {};
 
   for (let i = 0; i < args.length; i++) {
@@ -51,12 +52,19 @@ function parseArgs(argv: string[]): {
     process.exit(1);
   }
 
+  // Support both --skill-key=value and --skill-key value (from website copy)
+  const skillKey =
+    skillKeyFlag?.split("=")[1] ??
+    (skillKeyIdx >= 0 && args[skillKeyIdx + 1] && !args[skillKeyIdx + 1].startsWith("--")
+      ? args[skillKeyIdx + 1]
+      : undefined);
+
   return {
     url,
     name: nameFlag?.split("=")[1],
     outDir: outFlag?.split("=")[1] ?? OPENCLAW_SKILLS_DIR,
     headers,
-    skillKey: skillKeyFlag?.split("=")[1],
+    skillKey,
   };
 }
 
