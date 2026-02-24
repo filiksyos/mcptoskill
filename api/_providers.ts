@@ -10,21 +10,24 @@ export interface Provider {
   tokenField: string;
   workspaceNameField: string | null;
   tokenEncoding: "basic" | "none";
+  /** Use MCP server's own OAuth (PKCE + dynamic registration) instead of provider API OAuth */
+  mcpOAuth?: boolean;
 }
 
 export const PROVIDERS: Provider[] = [
   {
     id: "notion",
     name: "Notion",
-    authUrl: "https://api.notion.com/v1/oauth/authorize",
-    tokenUrl: "https://api.notion.com/v1/oauth/token",
+    authUrl: "https://mcp.notion.com/authorize",
+    tokenUrl: "https://mcp.notion.com/token",
     scopes: [],
     mcpUrl: "https://mcp.notion.com/mcp",
-    clientIdEnv: "NOTION_CLIENT_ID",
-    clientSecretEnv: "NOTION_CLIENT_SECRET",
+    clientIdEnv: "",
+    clientSecretEnv: "",
     tokenField: "access_token",
     workspaceNameField: "workspace_name",
-    tokenEncoding: "basic",
+    tokenEncoding: "none",
+    mcpOAuth: true,
   },
   {
     id: "linear",

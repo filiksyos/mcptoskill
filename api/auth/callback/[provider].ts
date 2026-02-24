@@ -17,7 +17,11 @@ export default async function handler(
       return;
     }
 
-    const stored = await redisGet<{ provider: string }>("state:" + state);
+    const stored = await redisGet<{
+      provider: string;
+      code_verifier?: string;
+      client_id?: string;
+    }>("state:" + state);
     if (!stored) {
       res.redirect(302, "/?error=invalid_state");
       return;
@@ -25,26 +29,41 @@ export default async function handler(
 
     await redisDel("state:" + state);
 
-    const clientId = process.env[provider.clientIdEnv] ?? "";
-    const clientSecret = process.env[provider.clientSecretEnv] ?? "";
-
     const redirectUri = "https://mcptoskill.com/api/auth/callback/" + id;
-    const tokenBody = new URLSearchParams({
-      code,
-      grant_type: "authorization_code",
-      redirect_uri: redirectUri,
-    });
-    if (provider.tokenEncoding === "none") {
-      tokenBody.set("client_id", clientId);
-      tokenBody.set("client_secret", clientSecret);
-    }
 
+    let clientId: string;
+    let clientSecret: string;
+    let tokenBody: URLSearchParams;
     const headers: Record<string, string> = {
       "Content-Type": "application/x-www-form-urlencoded",
     };
-    if (provider.tokenEncoding === "basic") {
-      headers["Authorization"] =
-        "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+
+    if (provider.mcpOAuth && stored.code_verifier && stored.client_id) {
+      // MCP OAuth: PKCE, no client_secret
+      clientId = stored.client_id;
+      tokenBody = new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: redirectUri,
+        client_id: clientId,
+        code_verifier: stored.code_verifier,
+      });
+    } else {
+      clientId = process.env[provider.clientIdEnv] ?? "";
+      clientSecret = process.env[provider.clientSecretEnv] ?? "";
+      tokenBody = new URLSearchParams({
+        code,
+        grant_type: "authorization_code",
+        redirect_uri: redirectUri,
+      });
+      if (provider.tokenEncoding === "none") {
+        tokenBody.set("client_id", clientId);
+        tokenBody.set("client_secret", clientSecret);
+      }
+      if (provider.tokenEncoding === "basic") {
+        headers["Authorization"] =
+          "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+      }
     }
 
     const tokenRes = await fetch(provider.tokenUrl, {
