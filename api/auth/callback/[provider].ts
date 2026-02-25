@@ -62,6 +62,9 @@ export default async function handler(
         grant_type: "authorization_code",
         redirect_uri: redirectUri,
       });
+      if (hasStoredCodeVerifier) {
+        tokenBody.set("code_verifier", stored.code_verifier!);
+      }
       if (provider.tokenEncoding === "none") {
         tokenBody.set("client_id", clientId);
         tokenBody.set("client_secret", clientSecret);
