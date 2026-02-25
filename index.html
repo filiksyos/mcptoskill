@@ -240,6 +240,12 @@
         background: #333;
       }
 
+      .provider-btn.supabase {
+        background: #3ECF8E;
+        color: #fff;
+        border-color: #3ECF8E;
+      }
+
       .manual-toggle {
         display: flex;
         align-items: center;
@@ -332,6 +338,25 @@
         background: #e5e5e5;
       }
 
+      .privacy-note {
+        font-size: 0.78rem;
+        color: #888;
+        text-align: center;
+        margin: 0.25rem 0 1rem;
+      }
+
+      footer {
+        text-align: center;
+        font-size: 0.75rem;
+        color: #aaa;
+        padding: 2rem 0 1rem;
+      }
+
+      footer a {
+        color: #aaa;
+        text-decoration: none;
+      }
+
       @media (prefers-color-scheme: dark) {
         body {
           background: #111;
@@ -411,6 +436,11 @@
           border-color: #e5e5e5;
         }
 
+        .provider-btn.supabase {
+          background: #2db87a;
+          border-color: #2db87a;
+        }
+
         .manual-toggle {
           background: #222;
           border-color: #444;
@@ -439,6 +469,10 @@
         .or-divider::after {
           background: #333;
         }
+
+        .privacy-note {
+          color: #666;
+        }
       }
     </style>
     <script defer src="/_vercel/insights/script.js"></script>
@@ -464,7 +498,13 @@
           <span>Continue with Notion</span>
           <span class="btn-arrow">→</span>
         </a>
+        <a class="provider-btn supabase" href="/api/auth/supabase">
+          <span class="provider-icon"><img src="/public/supabase.png" alt="" /></span>
+          <span>Continue with Supabase</span>
+          <span class="btn-arrow">→</span>
+        </a>
       </section>
+      <p class="privacy-note">🔒 OAuth tokens are not stored — they're only held briefly until your CLI retrieves them.</p>
 
       <section id="success-section">
         <p id="success-check"></p>
@@ -511,6 +551,9 @@
         <p>Run this on your OpenClaw environment</p>
       </section>
       </div>
+      <footer>
+        Built by <a href="https://x.com/filiksyos" target="_blank" rel="noopener">Fili</a> with <a href="https://traycer.ai" target="_blank" rel="noopener">Traycer</a>
+      </footer>
     </div>
 
     <script>
@@ -522,7 +565,8 @@
           var name = params.get('name') || '';
           if (key && provider) {
             var mcpUrls = {
-              notion: 'https://mcp.notion.com/mcp'
+              notion: 'https://mcp.notion.com/mcp',
+              supabase: 'https://mcp.supabase.com/mcp'
             };
             var mcpUrl = mcpUrls[provider] || '';
             if (mcpUrl) {
