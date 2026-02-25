@@ -35,17 +35,16 @@ export const PROVIDERS: Provider[] = [
   {
     id: "supabase",
     name: "Supabase",
-    authUrl: "",
-    tokenUrl: "",
+    authUrl: "https://api.supabase.com/v1/oauth/authorize",
+    tokenUrl: "https://api.supabase.com/v1/oauth/token",
     scopes: [],
     mcpUrl: "https://mcp.supabase.com/mcp",
-    clientIdEnv: "",
-    clientSecretEnv: "",
+    clientIdEnv: "SUPABASE_CLIENT_ID",
+    clientSecretEnv: "SUPABASE_CLIENT_SECRET",
     tokenField: "access_token",
     workspaceNameField: null,
-    tokenEncoding: "none",
-    mcpOAuth: true,
-    discoveryUrl: "https://mcp.supabase.com/.well-known/oauth-authorization-server",
+    tokenEncoding: "basic",
+    requiresPkce: true,
   },
 ];
 
