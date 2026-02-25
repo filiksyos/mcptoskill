@@ -14,6 +14,8 @@ export interface Provider {
   mcpOAuth?: boolean;
   /** OIDC/OAuth discovery URL for mcpOAuth providers */
   discoveryUrl?: string;
+  /** Use PKCE for standard OAuth (required by api.supabase.com) */
+  requiresPkce?: boolean;
 }
 
 export const PROVIDERS: Provider[] = [
