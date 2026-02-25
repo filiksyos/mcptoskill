@@ -69,7 +69,12 @@ export default async function handler(
     }
     // MCP OAuth: discovery, dynamic registration, PKCE
     const metaRes = await fetch(provider.discoveryUrl);
-    if (!metaRes.ok) throw new Error("OAuth discovery failed");
+    if (!metaRes.ok) {
+      const body = await metaRes.text();
+      throw new Error(
+        `OAuth discovery failed: ${metaRes.status} ${metaRes.statusText} for ${provider.discoveryUrl} - ${body.slice(0, 200)}`
+      );
+    }
     const meta = (await metaRes.json()) as {
       authorization_endpoint: string;
       token_endpoint: string;
