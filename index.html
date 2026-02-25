@@ -14,12 +14,16 @@
         font-family: system-ui, -apple-system, sans-serif;
         margin: 0;
         padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
       }
 
       .wrapper {
         max-width: 520px;
         margin: 0 auto;
         padding: 1rem 1.5rem;
+        flex: 1;
       }
 
       header {
@@ -349,12 +353,13 @@
         text-align: center;
         font-size: 0.75rem;
         color: #aaa;
-        padding: 2rem 0 1rem;
+        padding: 2rem 0 1.5rem;
+        margin-top: auto;
       }
 
       footer a {
         color: #aaa;
-        text-decoration: none;
+        text-decoration: underline;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -551,10 +556,10 @@
         <p>Run this on your OpenClaw environment</p>
       </section>
       </div>
-      <footer>
-        Built by <a href="https://x.com/filiksyos" target="_blank" rel="noopener">Fili</a> with <a href="https://traycer.ai" target="_blank" rel="noopener">Traycer</a>
-      </footer>
     </div>
+    <footer>
+      Built by <a href="https://x.com/filiksyos" target="_blank" rel="noopener">Fili</a> with <a href="https://traycer.ai" target="_blank" rel="noopener">Traycer</a>
+    </footer>
 
     <script>
       (function () {
