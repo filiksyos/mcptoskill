@@ -62,8 +62,8 @@ export default async function handler(
         grant_type: "authorization_code",
         redirect_uri: redirectUri,
       });
-      if (hasStoredCodeVerifier) {
-        tokenBody.set("code_verifier", stored.code_verifier!);
+      if (stored.code_verifier) {
+        tokenBody.set("code_verifier", stored.code_verifier);
       }
       if (provider.tokenEncoding === "none") {
         tokenBody.set("client_id", clientId);
@@ -82,6 +82,11 @@ export default async function handler(
     });
 
     if (!tokenRes.ok) {
+      const errBody = await tokenRes.text();
+      console.error(
+        `Token exchange failed: ${tokenRes.status} ${tokenRes.statusText}`,
+        errBody.slice(0, 500)
+      );
       res.redirect(302, "/?error=token_exchange_failed");
       return;
     }
@@ -89,6 +94,10 @@ export default async function handler(
     const tokenData = (await tokenRes.json()) as Record<string, unknown>;
     const access_token = tokenData[provider.tokenField];
     if (!access_token) {
+      console.error(
+        "Token exchange: missing access_token in response",
+        JSON.stringify(tokenData).slice(0, 200)
+      );
       res.redirect(302, "/?error=token_exchange_failed");
       return;
     }

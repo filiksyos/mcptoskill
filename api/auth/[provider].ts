@@ -113,13 +113,21 @@ export default async function handler(
   }
 
   // Standard OAuth
-  await redisSet("state:" + state, { provider: id }, 600);
+  const stateData: { provider: string; code_verifier?: string } = { provider: id };
   const params = new URLSearchParams({
     client_id: process.env[provider.clientIdEnv] ?? "",
     redirect_uri: redirectUri,
     response_type: "code",
     state,
   });
+  if (provider.requiresPkce) {
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    stateData.code_verifier = codeVerifier;
+    params.set("code_challenge", codeChallenge);
+    params.set("code_challenge_method", "S256");
+  }
+  await redisSet("state:" + state, stateData, 600);
   if (provider.scopes.length > 0) {
     params.set("scope", provider.scopes.join(" "));
   }
