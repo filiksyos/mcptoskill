@@ -21,6 +21,7 @@ export default async function handler(
       provider: string;
       code_verifier?: string;
       client_id?: string;
+      token_endpoint?: string;
     }>("state:" + state);
     if (!stored) {
       res.redirect(302, "/?error=invalid_state");
@@ -37,6 +38,11 @@ export default async function handler(
     const headers: Record<string, string> = {
       "Content-Type": "application/x-www-form-urlencoded",
     };
+
+    const tokenUrl =
+      provider.mcpOAuth && stored.code_verifier && stored.client_id
+        ? (stored.token_endpoint ?? provider.tokenUrl)
+        : provider.tokenUrl;
 
     if (provider.mcpOAuth && stored.code_verifier && stored.client_id) {
       // MCP OAuth: PKCE, no client_secret
@@ -66,7 +72,7 @@ export default async function handler(
       }
     }
 
-    const tokenRes = await fetch(provider.tokenUrl, {
+    const tokenRes = await fetch(tokenUrl, {
       method: "POST",
       headers,
       body: tokenBody.toString(),

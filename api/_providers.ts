@@ -12,6 +12,8 @@ export interface Provider {
   tokenEncoding: "basic" | "none";
   /** Use MCP server's own OAuth (PKCE + dynamic registration) instead of provider API OAuth */
   mcpOAuth?: boolean;
+  /** OIDC/OAuth discovery URL for mcpOAuth providers */
+  discoveryUrl?: string;
 }
 
 export const PROVIDERS: Provider[] = [
@@ -28,6 +30,22 @@ export const PROVIDERS: Provider[] = [
     workspaceNameField: "workspace_name",
     tokenEncoding: "none",
     mcpOAuth: true,
+    discoveryUrl: "https://mcp.notion.com/.well-known/oauth-authorization-server",
+  },
+  {
+    id: "supabase",
+    name: "Supabase",
+    authUrl: "",
+    tokenUrl: "",
+    scopes: [],
+    mcpUrl: "https://mcp.supabase.com/mcp",
+    clientIdEnv: "",
+    clientSecretEnv: "",
+    tokenField: "access_token",
+    workspaceNameField: null,
+    tokenEncoding: "none",
+    mcpOAuth: true,
+    discoveryUrl: "https://mcp.supabase.com/.well-known/oauth-authorization-server",
   },
 ];
 

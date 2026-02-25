@@ -64,23 +64,34 @@ export default async function handler(
   const redirectUri = "https://mcptoskill.com/api/auth/callback/" + id;
 
   if (provider.mcpOAuth) {
+    if (!provider.discoveryUrl) {
+      throw new Error("mcpOAuth provider missing discoveryUrl");
+    }
     // MCP OAuth: discovery, dynamic registration, PKCE
-    const metaRes = await fetch("https://mcp.notion.com/.well-known/oauth-authorization-server");
+    const metaRes = await fetch(provider.discoveryUrl);
     if (!metaRes.ok) throw new Error("OAuth discovery failed");
     const meta = (await metaRes.json()) as {
       authorization_endpoint: string;
       token_endpoint: string;
       registration_endpoint?: string;
     };
+    if (!meta.registration_endpoint) {
+      throw new Error("OAuth discovery missing registration_endpoint");
+    }
     const client = await registerMcpClient(
-      meta.registration_endpoint ?? "https://mcp.notion.com/register",
+      meta.registration_endpoint,
       redirectUri
     );
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = await generateCodeChallenge(codeVerifier);
     await redisSet(
       "state:" + state,
-      { provider: id, code_verifier: codeVerifier, client_id: client.client_id },
+      {
+        provider: id,
+        code_verifier: codeVerifier,
+        client_id: client.client_id,
+        token_endpoint: meta.token_endpoint,
+      },
       600
     );
     const params = new URLSearchParams({
