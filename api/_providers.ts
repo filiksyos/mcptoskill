@@ -14,6 +14,8 @@ export interface Provider {
   mcpOAuth?: boolean;
   /** OIDC/OAuth discovery URL for mcpOAuth providers */
   discoveryUrl?: string;
+  /** RFC 8707 resource URL for audience-bound tokens */
+  resourceUrl?: string;
   /** Use PKCE for standard OAuth (required by api.supabase.com) */
   requiresPkce?: boolean;
 }
@@ -47,6 +49,22 @@ export const PROVIDERS: Provider[] = [
     workspaceNameField: null,
     tokenEncoding: "basic",
     requiresPkce: true,
+  },
+  {
+    id: "posthog",
+    name: "PostHog",
+    authUrl: "https://us.posthog.com/oauth/authorize/",
+    tokenUrl: "https://us.posthog.com/oauth/token/",
+    scopes: [],
+    mcpUrl: "https://mcp.posthog.com/mcp",
+    clientIdEnv: "",
+    clientSecretEnv: "",
+    tokenField: "access_token",
+    workspaceNameField: null,
+    tokenEncoding: "none",
+    mcpOAuth: true,
+    discoveryUrl: "https://us.posthog.com/.well-known/oauth-authorization-server",
+    resourceUrl: "https://mcp.posthog.com",
   },
 ];
 

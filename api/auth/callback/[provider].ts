@@ -22,6 +22,7 @@ export default async function handler(
       code_verifier?: string;
       client_id?: string;
       token_endpoint?: string;
+      resourceUrl?: string;
     }>("state:" + state);
     if (!stored) {
       res.redirect(302, "/?error=invalid_state");
@@ -54,6 +55,9 @@ export default async function handler(
         client_id: clientId,
         code_verifier: stored.code_verifier,
       });
+      if (stored.resourceUrl) {
+        tokenBody.set("resource", stored.resourceUrl);
+      }
     } else {
       clientId = process.env[provider.clientIdEnv] ?? "";
       clientSecret = process.env[provider.clientSecretEnv] ?? "";
