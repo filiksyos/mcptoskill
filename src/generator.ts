@@ -54,7 +54,11 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
   });
 
   const desc = `${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`;
-  const escapedDesc = desc.replace(/"/g, '\\"');
+  const escapedDesc = desc
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r");
 
   return [
     "---",
