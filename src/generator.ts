@@ -45,13 +45,20 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     })
     .join("\n\n");
 
+  // requires.bins: [] — don't require curl; gateway's PATH at load time is often
+  // minimal (systemd/Docker), so bin checks fail. Script runs in agent context.
+  // always: true — bypass eligibility checks so skill reliably appears in list.
   const metadataJson = JSON.stringify({
     clawdbot: {},
-    openclaw: { requires: { bins: ["curl"] } },
+    openclaw: { requires: { bins: [] }, always: true },
   });
 
   const desc = `${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`;
-  const escapedDesc = desc.replace(/"/g, '\\"');
+  const escapedDesc = desc
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r");
 
   return [
     "---",
