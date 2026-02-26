@@ -96,6 +96,7 @@ export default async function handler(
         code_verifier: codeVerifier,
         client_id: client.client_id,
         token_endpoint: meta.token_endpoint,
+        resourceUrl: provider.resourceUrl,
       },
       600
     );
@@ -107,6 +108,9 @@ export default async function handler(
       code_challenge: codeChallenge,
       code_challenge_method: "S256",
     });
+    if (provider.resourceUrl) {
+      params.set("resource", provider.resourceUrl);
+    }
     const authorizationUrl = meta.authorization_endpoint + "?" + params.toString();
     res.redirect(302, authorizationUrl);
     return;

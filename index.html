@@ -250,6 +250,12 @@
         border-color: #3ECF8E;
       }
 
+      .provider-btn.posthog {
+        background: #F54F29;
+        color: #fff;
+        border-color: #F54F29;
+      }
+
       .manual-toggle {
         display: flex;
         align-items: center;
@@ -446,6 +452,11 @@
           border-color: #2db87a;
         }
 
+        .provider-btn.posthog {
+          background: #e54a21;
+          border-color: #e54a21;
+        }
+
         .manual-toggle {
           background: #222;
           border-color: #444;
@@ -511,6 +522,11 @@
           <span>Connect Supabase</span>
           <span class="btn-arrow">→</span>
         </a>
+        <a class="provider-btn posthog" href="/api/auth/posthog">
+          <span class="provider-icon"><img src="/public/posthog.png" alt="" /></span>
+          <span>Continue with PostHog</span>
+          <span class="btn-arrow">→</span>
+        </a>
       </section>
       <p class="privacy-note">🔒 OAuth tokens are not stored — they're only held briefly until your CLI retrieves them.</p>
 
@@ -574,7 +590,8 @@
           if (key && provider) {
             var mcpUrls = {
               notion: 'https://mcp.notion.com/mcp',
-              supabase: 'https://mcp.supabase.com/mcp'
+              supabase: 'https://mcp.supabase.com/mcp',
+              posthog: 'https://mcp.posthog.com/mcp'
             };
             var mcpUrl = mcpUrls[provider] || '';
             if (mcpUrl) {
