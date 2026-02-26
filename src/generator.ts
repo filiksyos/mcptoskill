@@ -45,9 +45,13 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     })
     .join("\n\n");
 
+  // Don't use requires.bins: ["curl"] — OpenClaw checks bins against the gateway
+  // process PATH at load time. In systemd/Docker/minimal envs, curl often isn't
+  // found there, so skills get filtered out and never appear. The script runs
+  // in the agent's execution context where curl is typically available.
   const metadataJson = JSON.stringify({
     clawdbot: {},
-    openclaw: { requires: { bins: ["curl"] } },
+    openclaw: { requires: { bins: [] } },
   });
 
   const desc = `${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`;

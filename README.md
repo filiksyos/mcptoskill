@@ -60,6 +60,8 @@ npx @filiksyos/mcptoskill https://mcp.notion.com/mcp --skill-key sk_live_xxx
 - `SKILL.md` — the OpenClaw skill definition with tool documentation
 - `scripts/<skill-name>.sh` — a shell script that calls the MCP server via curl
 
+**Skill visibility** — Generated skills no longer declare `requires.bins: ["curl"]` because OpenClaw checks bins against the gateway process PATH at load time; in systemd/Docker/minimal environments, curl is often not found there, causing skills to be filtered out. The script runs in the agent's execution context where curl is typically available.
+
 ---
 
 ## Web Page
