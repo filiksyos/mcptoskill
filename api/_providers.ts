@@ -66,6 +66,21 @@ export const PROVIDERS: Provider[] = [
     discoveryUrl: "https://us.posthog.com/.well-known/oauth-authorization-server",
     resourceUrl: "https://mcp.posthog.com",
   },
+  {
+    id: "stripe",
+    name: "Stripe",
+    authUrl: "https://access.stripe.com/mcp/oauth2/authorize",
+    tokenUrl: "https://access.stripe.com/mcp/oauth2/token",
+    scopes: [],
+    mcpUrl: "https://mcp.stripe.com",
+    clientIdEnv: "",
+    clientSecretEnv: "",
+    tokenField: "access_token",
+    workspaceNameField: null,
+    tokenEncoding: "none",
+    mcpOAuth: true,
+    discoveryUrl: "https://mcp.stripe.com/.well-known/oauth-authorization-server",
+  },
 ];
 
 export function getProvider(id: string): Provider | undefined {

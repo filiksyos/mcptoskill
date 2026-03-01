@@ -256,6 +256,12 @@
         border-color: #F54F29;
       }
 
+      .provider-btn.stripe {
+        background: #635BFF;
+        color: #fff;
+        border-color: #635BFF;
+      }
+
       .manual-toggle {
         display: flex;
         align-items: center;
@@ -457,6 +463,12 @@
           border-color: #e54a21;
         }
 
+        .provider-btn.stripe {
+          background: #635BFF;
+          color: #fff;
+          border-color: #635BFF;
+        }
+
         .manual-toggle {
           background: #222;
           border-color: #444;
@@ -527,6 +539,11 @@
           <span>Connect PostHog</span>
           <span class="btn-arrow">→</span>
         </a>
+        <a class="provider-btn stripe" href="/api/auth/stripe">
+          <span class="provider-icon"><img src="/public/stripe.png" alt="" /></span>
+          <span>Connect Stripe</span>
+          <span class="btn-arrow">→</span>
+        </a>
       </section>
       <p class="privacy-note">🔒 OAuth tokens are not stored — they're only held briefly until your CLI retrieves them.</p>
 
@@ -591,7 +608,8 @@
             var mcpUrls = {
               notion: 'https://mcp.notion.com/mcp',
               supabase: 'https://mcp.supabase.com/mcp',
-              posthog: 'https://mcp.posthog.com/mcp'
+              posthog: 'https://mcp.posthog.com/mcp',
+              stripe: 'https://mcp.stripe.com'
             };
             var mcpUrl = mcpUrls[provider] || '';
             if (mcpUrl) {
