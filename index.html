@@ -540,11 +540,11 @@
       </section>
 
       <div class="other-mcps">
-        <button type="button" class="mcp-option" data-url="https://mcp.context7.com/mcp" data-token="">
+        <button type="button" class="mcp-option" data-url="https://mcp.context7.com/mcp" data-token="" data-name="">
           <span>Context7</span>
           <span class="btn-arrow">Configure →</span>
         </button>
-        <button type="button" class="mcp-option" data-url="https://mcp.exa.ai/mcp?exaApiKey=YOUR_KEY" data-token="">
+        <button type="button" class="mcp-option" data-url="https://mcp.exa.ai/mcp?exaApiKey=YOUR_KEY" data-token="" data-name="exa">
           <span>Exa MCP</span>
           <span class="btn-arrow">Configure →</span>
         </button>
@@ -560,6 +560,10 @@
         <label for="token-input">Auth Token <span>(optional)</span></label>
         <input id="token-input" type="text" />
         <small>Bearer token value only — e.g. sbp_xxx</small>
+
+        <label for="name-input">Skill name <span>(optional)</span></label>
+        <input id="name-input" type="text" placeholder="e.g. exa" />
+        <small>Override auto-generated name — use "exa" for Exa MCP to avoid "mcp-typescript-server-on-vercel"</small>
 
         <button id="generate-btn" type="button">Generate Command</button>
       </section>
@@ -617,6 +621,7 @@
         })();
         var urlInput = document.getElementById('url-input');
         var tokenInput = document.getElementById('token-input');
+        var nameInput = document.getElementById('name-input');
         var urlError = document.getElementById('url-error');
         var generateBtn = document.getElementById('generate-btn');
         var commandOutput = document.getElementById('command-output');
@@ -626,15 +631,17 @@
         var manualSection = document.getElementById('manual-section');
         var manualToggle = document.getElementById('manual-toggle');
 
-        function showManualSection(fillUrl, fillToken) {
+        function showManualSection(fillUrl, fillToken, fillName) {
           manualSection.classList.add('visible');
           manualToggle.textContent = 'Hide';
           if (fillUrl !== undefined) {
             urlInput.value = fillUrl;
             tokenInput.value = fillToken || '';
+            nameInput.value = fillName || '';
           } else {
             urlInput.value = '';
             tokenInput.value = '';
+            nameInput.value = '';
           }
           outputSection.style.display = 'none';
           urlError.classList.remove('visible');
@@ -651,7 +658,7 @@
 
         document.querySelectorAll('.mcp-option').forEach(function (btn) {
           btn.addEventListener('click', function () {
-            showManualSection(btn.dataset.url || '', btn.dataset.token || '');
+            showManualSection(btn.dataset.url || '', btn.dataset.token || '', btn.dataset.name || '');
             formSection.scrollIntoView({ behavior: 'smooth' });
             urlInput.focus();
           });
@@ -660,6 +667,7 @@
         generateBtn.addEventListener('click', function () {
           var url = urlInput.value.trim();
           var token = tokenInput.value.trim();
+          var name = nameInput.value.trim();
 
           if (!url) {
             urlError.classList.add('visible');
@@ -668,11 +676,12 @@
 
           urlError.classList.remove('visible');
 
-          var command;
+          var command = 'npx @filiksyos/mcptoskill ' + url;
           if (token) {
-            command = 'npx @filiksyos/mcptoskill ' + url + ' --header "Authorization: Bearer ' + token + '"';
-          } else {
-            command = 'npx @filiksyos/mcptoskill ' + url;
+            command += ' --header "Authorization: Bearer ' + token + '"';
+          }
+          if (name) {
+            command += ' --name=' + name;
           }
 
           commandOutput.textContent = command;

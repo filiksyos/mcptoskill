@@ -192,7 +192,21 @@ async function main() {
     console.log(`  • ${t.name}: ${t.description.slice(0, 80)}${t.description.length > 80 ? "…" : ""}`);
   }
 
-  const skillName = name ?? result.serverInfo.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  // Prefer explicit --name; fallback to known-URL mapping (many hosted MCPs return generic names like "MCP TypeScript Server on Vercel")
+  const knownNames: Record<string, string> = {
+    "mcp.exa.ai": "exa",
+    "exa.ai": "exa",
+  };
+  const host = (() => {
+    try {
+      return new URL(url).hostname.toLowerCase();
+    } catch {
+      return "";
+    }
+  })();
+  const slug = result.serverInfo.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const skillName =
+    name ?? (knownNames[host] ?? (host.endsWith(".exa.ai") ? "exa" : slug));
 
   let tokenFilePath: string | undefined;
   if (oauthTokenInfo) {
@@ -205,7 +219,7 @@ async function main() {
 
   const { skillName: finalSkillName, skillMd, shellScript } = generate(
     result,
-    name,
+    skillName,
     oauthTokenInfo ? { ...oauthTokenInfo, tokenFilePath: tokenFilePath! } : undefined,
   );
 

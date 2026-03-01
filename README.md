@@ -24,7 +24,7 @@ npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skil
 | `<url>` | MCP server endpoint URL (required) |
 | `--header "Key: Value"` | Add an HTTP header (repeatable for multiple headers) |
 | `--skill-key=<key>` | Skill key from [mcptoskill.com](https://mcptoskill.com) OAuth flow (e.g. Notion). One-time use. |
-| `--name=<name>` | Override the generated skill name |
+| `--name=<name>` | Override the auto-generated skill name |
 | `--out=<dir>` | Output directory (default: `~/.openclaw/skills/`) |
 
 **Examples**
