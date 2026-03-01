@@ -5,10 +5,12 @@ import { homedir } from "node:os";
 import { existsSync } from "node:fs";
 import { connectAndDiscover } from "./client.js";
 import { generate } from "./generator.js";
+import type { OAuthTokenInfo } from "./generator.js";
 
 const OPENCLAW_DIR = join(homedir(), ".openclaw");
 const OPENCLAW_SKILLS_DIR = join(OPENCLAW_DIR, "skills");
 const OPENCLAW_CONFIG = join(OPENCLAW_DIR, "openclaw.json");
+const MCPTOSKILL_TOKENS_DIR = join(OPENCLAW_DIR, "mcptoskill", "tokens");
 
 function parseArgs(argv: string[]): {
   url: string;
@@ -98,8 +100,52 @@ async function updateOpenClawConfig(skillName: string): Promise<void> {
   await writeFile(OPENCLAW_CONFIG, JSON.stringify(config, null, 2) + "\n", "utf8");
 }
 
+interface SkillKeyResponse {
+  access_token: string;
+  refresh_token: string | null;
+  expires_in: number | null;
+  token_endpoint: string | null;
+  client_id: string | null;
+  mcp_url: string;
+  provider: string;
+  mcp_oauth: boolean;
+  token_encoding: "basic" | "none";
+  resource_url: string | null;
+  workspace_name: string | null;
+}
+
+async function saveTokenFile(
+  skillName: string,
+  data: SkillKeyResponse
+): Promise<string> {
+  await mkdir(MCPTOSKILL_TOKENS_DIR, { recursive: true });
+
+  const tokenFilePath = join(MCPTOSKILL_TOKENS_DIR, `${skillName}.json`);
+  const now = Math.floor(Date.now() / 1000);
+
+  const tokenData = {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expires_at: data.expires_in ? now + data.expires_in : null,
+    token_endpoint: data.token_endpoint,
+    client_id: data.client_id,
+    mcp_oauth: data.mcp_oauth,
+    token_encoding: data.token_encoding,
+    resource_url: data.resource_url,
+    provider: data.provider,
+    mcp_url: data.mcp_url,
+  };
+
+  await writeFile(tokenFilePath, JSON.stringify(tokenData, null, 2) + "\n", "utf8");
+  await chmod(tokenFilePath, 0o600);
+
+  return tokenFilePath;
+}
+
 async function main() {
   const { url, name, outDir, headers, skillKey } = parseArgs(process.argv);
+
+  let oauthTokenInfo: OAuthTokenInfo | undefined;
 
   if (skillKey) {
     const controller = new AbortController();
@@ -112,12 +158,23 @@ async function main() {
         console.error("Error: skill key not found — visit mcptoskill.com to reconnect");
         process.exit(1);
       }
-      const data = (await res.json()) as {
-        access_token: string;
-        mcp_url: string;
-        provider: string;
-      };
+      const data = (await res.json()) as SkillKeyResponse;
       headers["Authorization"] = `Bearer ${data.access_token}`;
+
+      if (data.refresh_token) {
+        oauthTokenInfo = {
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_in: data.expires_in,
+          token_endpoint: data.token_endpoint ?? "",
+          client_id: data.client_id ?? "",
+          mcp_oauth: data.mcp_oauth ?? false,
+          token_encoding: data.token_encoding ?? "none",
+          resource_url: data.resource_url ?? null,
+          provider: data.provider,
+          mcp_url: data.mcp_url,
+        };
+      }
     } catch {
       console.error("Error: skill key not found — visit mcptoskill.com to reconnect");
       process.exit(1);
@@ -135,15 +192,30 @@ async function main() {
     console.log(`  • ${t.name}: ${t.description.slice(0, 80)}${t.description.length > 80 ? "…" : ""}`);
   }
 
-  const { skillName, skillMd, shellScript } = generate(result, name);
+  const skillName = name ?? result.serverInfo.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  const skillDir = join(outDir, skillName);
+  let tokenFilePath: string | undefined;
+  if (oauthTokenInfo) {
+    tokenFilePath = await saveTokenFile(skillName, {
+      ...oauthTokenInfo,
+      workspace_name: null,
+    });
+    console.log(`✓ Token saved: ${tokenFilePath}`);
+  }
+
+  const { skillName: finalSkillName, skillMd, shellScript } = generate(
+    result,
+    name,
+    oauthTokenInfo ? { ...oauthTokenInfo, tokenFilePath: tokenFilePath! } : undefined,
+  );
+
+  const skillDir = join(outDir, finalSkillName);
   const scriptsDir = join(skillDir, "scripts");
 
   await mkdir(scriptsDir, { recursive: true });
 
   const skillMdPath = join(skillDir, "SKILL.md");
-  const scriptPath = join(scriptsDir, `${skillName}.sh`);
+  const scriptPath = join(scriptsDir, `${finalSkillName}.sh`);
 
   await writeFile(skillMdPath, skillMd, "utf8");
   await writeFile(scriptPath, shellScript, "utf8");
@@ -151,7 +223,7 @@ async function main() {
 
   const localScriptsDir = join(process.cwd(), "scripts");
   await mkdir(localScriptsDir, { recursive: true });
-  const localScriptPath = join(localScriptsDir, `${skillName}.sh`);
+  const localScriptPath = join(localScriptsDir, `${finalSkillName}.sh`);
   await copyFile(scriptPath, localScriptPath);
   await chmod(localScriptPath, 0o755);
   console.log(`✓ Copied to local workspace: ${localScriptPath}`);
@@ -159,18 +231,24 @@ async function main() {
   const isOpenClawInstall = resolve(outDir) === resolve(OPENCLAW_SKILLS_DIR);
 
   if (isOpenClawInstall) {
-    await updateOpenClawConfig(skillName);
+    await updateOpenClawConfig(finalSkillName);
     console.log("");
-    console.log(`✓ Skill installed: ${skillName}`);
+    console.log(`✓ Skill installed: ${finalSkillName}`);
     console.log(`  ${skillDir}/`);
+    if (oauthTokenInfo) {
+      console.log(`  Token auto-refresh enabled (${oauthTokenInfo.provider})`);
+    }
     console.log("");
     console.log("Restart OpenClaw (or wait for auto-reload), then try:");
     console.log(`  "use ${result.serverInfo.name} to ${result.tools[0]?.name?.replace(/-/g, " ") ?? "run a tool"}"`);
   } else {
     console.log("");
-    console.log(`Generated skill: ${skillName}`);
+    console.log(`Generated skill: ${finalSkillName}`);
     console.log(`  ${skillMdPath}`);
     console.log(`  ${scriptPath}`);
+    if (oauthTokenInfo) {
+      console.log(`  Token auto-refresh enabled (${oauthTokenInfo.provider})`);
+    }
     console.log("");
     console.log("To install in OpenClaw:");
     console.log(`  cp -r ${skillDir} ${OPENCLAW_SKILLS_DIR}/`);
