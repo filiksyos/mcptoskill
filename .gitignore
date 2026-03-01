@@ -4,3 +4,4 @@ output/
 scripts/
 .env
 .DS_Store
+.vercel
