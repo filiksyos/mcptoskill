@@ -106,6 +106,13 @@ export default async function handler(
       return;
     }
 
+    const refresh_token =
+      typeof tokenData.refresh_token === "string"
+        ? tokenData.refresh_token
+        : null;
+    const expires_in =
+      typeof tokenData.expires_in === "number" ? tokenData.expires_in : null;
+
     let workspace_name: string | null = null;
     if (provider.workspaceNameField === null) {
       workspace_name = null;
@@ -136,8 +143,15 @@ export default async function handler(
 
     await redisSet("sk:" + skillKey, {
       access_token,
+      refresh_token,
+      expires_in,
+      token_endpoint: tokenUrl,
+      client_id: clientId,
       provider: id,
       mcp_url: provider.mcpUrl,
+      mcp_oauth: !!provider.mcpOAuth,
+      token_encoding: provider.tokenEncoding,
+      resource_url: stored.resourceUrl ?? null,
       workspace_name,
       created_at: new Date().toISOString(),
     });
