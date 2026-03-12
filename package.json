@@ -1,6 +1,6 @@
 {
   "name": "@filiksyos/mcptoskill",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Turn any MCP server into an OpenClaw skill",
   "type": "module",
   "bin": {
