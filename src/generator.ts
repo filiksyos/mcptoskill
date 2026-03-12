@@ -6,6 +6,7 @@ export interface OAuthTokenInfo {
   expires_in: number | null;
   token_endpoint: string;
   client_id: string;
+  client_secret?: string;
   mcp_oauth: boolean;
   token_encoding: "basic" | "none";
   resource_url: string | null;
@@ -193,9 +194,13 @@ function generateOAuthShellScript(
     },
   });
 
-  const refreshFunction = oauth.mcp_oauth
-    ? generateClientSideRefreshFunction(oauth)
-    : generateProxiedRefreshFunction(oauth);
+  // Supabase requires Basic auth for refresh even with dynamic registration; check first
+  const refreshFunction =
+    oauth.provider === "supabase" && oauth.client_secret
+      ? generateSupabaseRefreshFunction(oauth)
+      : oauth.mcp_oauth
+        ? generateClientSideRefreshFunction(oauth)
+        : generateProxiedRefreshFunction(oauth);
 
   const lines = [
     "#!/bin/bash",
@@ -216,7 +221,7 @@ function generateOAuthShellScript(
     "read_token() {",
     "  if [ ! -f \"$TOKEN_FILE\" ]; then",
     `    echo "Error: token file not found at $TOKEN_FILE" >&2`,
-    `    echo "Re-run: npx @filiksyos/mcptoskill ${serverUrl} --skill-key <key>" >&2`,
+    `    echo "Re-run: npx @filiksyos/mcptoskill ${serverUrl}" >&2`,
     "    exit 1",
     "  fi",
     "  ACCESS_TOKEN=$(jq -r '.access_token' \"$TOKEN_FILE\")",
@@ -300,7 +305,7 @@ function generateClientSideRefreshFunction(oauth: OAuthTokenInfo): string[] {
     "  client_id=$(jq -r '.client_id // empty' \"$TOKEN_FILE\")",
     "",
     "  if [ -z \"$rt\" ]; then",
-    `    echo "Error: no refresh token — re-authenticate at mcptoskill.com" >&2`,
+    `    echo "Error: no refresh token — re-run: npx @filiksyos/mcptoskill ${oauth.mcp_url}" >&2`,
     "    exit 1",
     "  fi",
     "",
@@ -315,7 +320,56 @@ function generateClientSideRefreshFunction(oauth: OAuthTokenInfo): string[] {
     "  local new_at",
     "  new_at=$(echo \"$resp\" | jq -r '.access_token // empty')",
     "  if [ -z \"$new_at\" ]; then",
-    `    echo "Error: token refresh failed — re-authenticate at mcptoskill.com" >&2`,
+    `    echo "Error: token refresh failed — re-run: npx @filiksyos/mcptoskill ${oauth.mcp_url}" >&2`,
+    "    echo \"$resp\" >&2",
+    "    exit 1",
+    "  fi",
+    "",
+    "  local new_rt new_exp now new_expires_at",
+    "  new_rt=$(echo \"$resp\" | jq -r '.refresh_token // empty')",
+    "  new_exp=$(echo \"$resp\" | jq -r '.expires_in // 3600')",
+    "  now=$(date +%s)",
+    "  new_expires_at=$((now + new_exp))",
+    "",
+    "  jq --arg at \"$new_at\" \\",
+    "     --arg rt \"${new_rt:-$rt}\" \\",
+    "     --argjson ea \"$new_expires_at\" \\",
+    "     '.access_token=$at | .refresh_token=$rt | .expires_at=$ea' \\",
+    "     \"$TOKEN_FILE\" > \"${TOKEN_FILE}.tmp\" && mv \"${TOKEN_FILE}.tmp\" \"$TOKEN_FILE\"",
+    "  chmod 600 \"$TOKEN_FILE\"",
+    "}",
+  ];
+}
+
+function generateSupabaseRefreshFunction(oauth: OAuthTokenInfo): string[] {
+  return [
+    "refresh_token_flow() {",
+    "  local rt token_endpoint client_id client_secret",
+    "  rt=$(jq -r '.refresh_token // empty' \"$TOKEN_FILE\")",
+    "  token_endpoint=$(jq -r '.token_endpoint // empty' \"$TOKEN_FILE\")",
+    "  client_id=$(jq -r '.client_id // empty' \"$TOKEN_FILE\")",
+    "  client_secret=$(jq -r '.client_secret // empty' \"$TOKEN_FILE\")",
+    "",
+    "  if [ -z \"$rt\" ]; then",
+    `    echo "Error: no refresh token — re-run: npx @filiksyos/mcptoskill ${oauth.mcp_url}" >&2`,
+    "    exit 1",
+    "  fi",
+    "",
+    "  if [ -z \"$client_secret\" ]; then",
+    `    echo "Error: token file missing client_secret — re-run: npx @filiksyos/mcptoskill ${oauth.mcp_url}" >&2`,
+    "    exit 1",
+    "  fi",
+    "",
+    "  local resp",
+    "  resp=$(curl -s -X POST \"$token_endpoint\" \\",
+    "    -H \"Content-Type: application/x-www-form-urlencoded\" \\",
+    "    -u \"$client_id:$client_secret\" \\",
+    "    -d \"grant_type=refresh_token&refresh_token=$rt\")",
+    "",
+    "  local new_at",
+    "  new_at=$(echo \"$resp\" | jq -r '.access_token // empty')",
+    "  if [ -z \"$new_at\" ]; then",
+    `    echo "Error: token refresh failed — re-run: npx @filiksyos/mcptoskill ${oauth.mcp_url}" >&2`,
     "    echo \"$resp\" >&2",
     "    exit 1",
     "  fi",
@@ -343,7 +397,7 @@ function generateProxiedRefreshFunction(oauth: OAuthTokenInfo): string[] {
     "  rt=$(jq -r '.refresh_token // empty' \"$TOKEN_FILE\")",
     "",
     "  if [ -z \"$rt\" ]; then",
-    `    echo "Error: no refresh token — re-authenticate at mcptoskill.com" >&2`,
+    `    echo "Error: no refresh token — re-run: npx @filiksyos/mcptoskill ${oauth.mcp_url}" >&2`,
     "    exit 1",
     "  fi",
     "",
@@ -355,7 +409,7 @@ function generateProxiedRefreshFunction(oauth: OAuthTokenInfo): string[] {
     "  local new_at",
     "  new_at=$(echo \"$resp\" | jq -r '.access_token // empty')",
     "  if [ -z \"$new_at\" ]; then",
-    `    echo "Error: token refresh failed — re-authenticate at mcptoskill.com" >&2`,
+    `    echo "Error: token refresh failed — re-run: npx @filiksyos/mcptoskill ${oauth.mcp_url}" >&2`,
     "    echo \"$resp\" >&2",
     "    exit 1",
     "  fi",

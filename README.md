@@ -23,7 +23,7 @@ npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skil
 |---|---|
 | `<url>` | MCP server endpoint URL (required) |
 | `--header "Key: Value"` | Add an HTTP header (repeatable for multiple headers) |
-| `--skill-key=<key>` | Skill key from [mcptoskill.com](https://mcptoskill.com) OAuth flow (e.g. Notion). One-time use. |
+| `--skill-key=<key>` | *(Deprecated)* Legacy skill key from mcptoskill.com. Use local OAuth instead. |
 | `--name=<name>` | Override the auto-generated skill name |
 | `--out=<dir>` | Output directory (default: `~/.openclaw/skills/`) |
 
@@ -35,25 +35,33 @@ npx @filiksyos/mcptoskill <mcp-server-url> [--header "Key: Value"] [--name=<skil
 npx @filiksyos/mcptoskill https://mcp.context7.com/mcp
 ```
 
-2. Supabase (Bearer token):
+2. Local OAuth (Notion, PostHog) — run the command, follow prompts:
+
+```
+npx @filiksyos/mcptoskill https://mcp.notion.com/mcp
+```
+
+The CLI prints an auth URL. Open it in your browser, complete OAuth, then copy the redirect URL from the address bar (it will fail to load — that's fine) and paste it into the terminal. Tokens are saved locally to `~/.openclaw/mcptoskill/tokens/`.
+
+3. Supabase (local OAuth) — same flow as Notion, no env vars needed:
+
+```
+npx @filiksyos/mcptoskill https://mcp.supabase.com/mcp
+```
+
+4. Supabase (manual Bearer token):
 
 ```
 npx @filiksyos/mcptoskill "https://mcp.supabase.com/mcp?project_ref=YOUR_REF" --header "Authorization: Bearer YOUR_TOKEN"
 ```
 
-3. Exa MCP (key in URL):
+5. Exa MCP (key in URL):
 
 ```
 npx @filiksyos/mcptoskill "https://mcp.exa.ai/mcp?exaApiKey=YOUR_KEY"
 ```
 
-4. Notion (OAuth via [mcptoskill.com](https://mcptoskill.com) — connect, then run the generated command):
-
-```
-npx @filiksyos/mcptoskill https://mcp.notion.com/mcp --skill-key sk_live_xxx
-```
-
-**Skill keys (OAuth)** — Keys from mcptoskill.com are one-time use. The first install consumes the key; it cannot be used again. Re-installing on another machine requires re-authenticating at mcptoskill.com. No tokens are stored long-term on mcptoskill.com.
+**VPS / headless** — Run the CLI on a remote machine. When prompted, open the auth URL on your laptop, complete OAuth, then copy the redirect URL from the address bar and paste it into the SSH terminal. No server needs to listen on localhost.
 
 **What gets generated** — two files are created inside `~/.openclaw/skills/<skill-name>/`:
 
