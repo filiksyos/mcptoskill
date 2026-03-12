@@ -6,6 +6,8 @@ import { existsSync } from "node:fs";
 import { connectAndDiscover } from "./client.js";
 import { generate } from "./generator.js";
 import type { OAuthTokenInfo } from "./generator.js";
+import { getProviderByMcpUrl } from "./providers.js";
+import { runLocalOAuth } from "./oauth.js";
 
 const OPENCLAW_DIR = join(homedir(), ".openclaw");
 const OPENCLAW_SKILLS_DIR = join(OPENCLAW_DIR, "skills");
@@ -47,9 +49,11 @@ function parseArgs(argv: string[]): {
     console.error("");
     console.error("Examples:");
     console.error("  mcptoskill https://mcp.context7.com/mcp");
+    console.error("  mcptoskill https://mcp.notion.com/mcp          # local OAuth, follow prompts");
     console.error("  mcptoskill https://mcp.context7.com/mcp --name=context7 --out=./skills");
     console.error("  mcptoskill https://mcp.supabase.com/mcp?project_ref=XXX --header \"Authorization: Bearer sbp_xxx\"");
     console.error("");
+    console.error("OAuth (Notion, PostHog, Supabase): run without --header; CLI will prompt for local OAuth.");
     console.error("Also installs local ./scripts/<skill-name>.sh for integrations.");
     process.exit(1);
   }
@@ -106,6 +110,7 @@ interface SkillKeyResponse {
   expires_in: number | null;
   token_endpoint: string | null;
   client_id: string | null;
+  client_secret?: string;
   mcp_url: string;
   provider: string;
   mcp_oauth: boolean;
@@ -123,7 +128,7 @@ async function saveTokenFile(
   const tokenFilePath = join(MCPTOSKILL_TOKENS_DIR, `${skillName}.json`);
   const now = Math.floor(Date.now() / 1000);
 
-  const tokenData = {
+  const tokenData: Record<string, unknown> = {
     access_token: data.access_token,
     refresh_token: data.refresh_token,
     expires_at: data.expires_in ? now + data.expires_in : null,
@@ -135,6 +140,9 @@ async function saveTokenFile(
     provider: data.provider,
     mcp_url: data.mcp_url,
   };
+  if (data.client_secret) {
+    tokenData.client_secret = data.client_secret;
+  }
 
   await writeFile(tokenFilePath, JSON.stringify(tokenData, null, 2) + "\n", "utf8");
   await chmod(tokenFilePath, 0o600);
@@ -146,8 +154,10 @@ async function main() {
   const { url, name, outDir, headers, skillKey } = parseArgs(process.argv);
 
   let oauthTokenInfo: OAuthTokenInfo | undefined;
+  let tokenFilePath: string | undefined;
 
   if (skillKey) {
+    console.warn("--skill-key is deprecated. Use local OAuth instead (no flag needed).");
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
     try {
@@ -183,6 +193,33 @@ async function main() {
     }
   }
 
+  let skillNameOverride: string | undefined;
+  if (!skillKey && Object.keys(headers).length === 0) {
+    const provider = getProviderByMcpUrl(url);
+    if (provider) {
+      const oauthSkillName = name ?? `${provider.id}-mcp`;
+      const oauthData = await runLocalOAuth(provider.id, oauthSkillName, url);
+      headers["Authorization"] = `Bearer ${oauthData.access_token}`;
+      tokenFilePath = await saveTokenFile(oauthSkillName, oauthData);
+      skillNameOverride = oauthSkillName;
+      oauthTokenInfo = {
+        access_token: oauthData.access_token,
+        refresh_token: oauthData.refresh_token ?? "",
+        expires_in: oauthData.expires_in,
+        token_endpoint: oauthData.token_endpoint ?? "",
+        client_id: oauthData.client_id ?? "",
+        mcp_oauth: oauthData.mcp_oauth,
+        token_encoding: oauthData.token_encoding,
+        resource_url: oauthData.resource_url,
+        provider: oauthData.provider,
+        mcp_url: oauthData.mcp_url,
+        tokenFilePath,
+        ...(oauthData.client_secret && { client_secret: oauthData.client_secret }),
+      };
+      console.log(`✓ Token saved: ${tokenFilePath}`);
+    }
+  }
+
   console.log(`Connecting to ${url} ...`);
 
   const result = await connectAndDiscover(url, headers);
@@ -206,10 +243,9 @@ async function main() {
   })();
   const slug = result.serverInfo.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const skillName =
-    name ?? (knownNames[host] ?? (host.endsWith(".exa.ai") ? "exa" : slug));
+    skillNameOverride ?? name ?? (knownNames[host] ?? (host.endsWith(".exa.ai") ? "exa" : slug));
 
-  let tokenFilePath: string | undefined;
-  if (oauthTokenInfo) {
+  if (oauthTokenInfo && !tokenFilePath) {
     tokenFilePath = await saveTokenFile(skillName, {
       ...oauthTokenInfo,
       workspace_name: null,

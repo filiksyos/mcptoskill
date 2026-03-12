@@ -202,6 +202,78 @@
         margin: 0.6rem 0 0;
       }
 
+      #marketplace {
+        max-width: 520px;
+        margin: 0 auto 1.5rem;
+      }
+
+      .mcp-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+      }
+
+      .mcp-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .mcp-card-header .provider-icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      .mcp-card-title {
+        flex: 1;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .mcp-card .copy-btn {
+        padding: 0.3rem 0.7rem;
+        background: #000;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .mcp-card .copy-btn:hover {
+        background: #333;
+      }
+
+      .mcp-card .copy-btn.copied {
+        background: #16a34a;
+      }
+
+      .mcp-command {
+        font-family: monospace;
+        font-size: 0.85rem;
+        padding: 0.6rem 0.75rem;
+        background: #f5f5f5;
+        border-radius: 6px;
+        margin: 0;
+        word-break: break-all;
+        white-space: pre-wrap;
+      }
+
+      .mcp-card-note {
+        font-size: 0.8rem;
+        color: #666;
+        margin: 0;
+      }
+
+      .mcp-card.supabase .mcp-command {
+        font-size: 0.8rem;
+      }
+
       #oauth-section {
         max-width: 520px;
         margin: 0 auto 1rem;
@@ -477,6 +549,28 @@
           border-color: #666;
         }
 
+        .mcp-card {
+          background: #222;
+          border-color: #444;
+        }
+
+        .mcp-card .copy-btn {
+          background: #fff;
+          color: #000;
+        }
+
+        .mcp-card .copy-btn:hover {
+          background: #e5e5e5;
+        }
+
+        .mcp-card .mcp-command {
+          background: #111;
+        }
+
+        .mcp-card-note {
+          color: #999;
+        }
+
         .or-divider {
           color: #999;
         }
@@ -511,24 +605,33 @@
         <p>Turn any MCP server into an openclaw skill</p>
       </section>
 
-      <section id="oauth-section">
-        <a class="provider-btn primary" href="/api/auth/notion">
-          <span class="provider-icon"><img src="/public/notion.png" alt="" /></span>
-          <span>Connect Notion</span>
-          <span class="btn-arrow">→</span>
-        </a>
-        <a class="provider-btn supabase" href="/api/auth/supabase">
-          <span class="provider-icon"><img src="/public/supabase.png" alt="" /></span>
-          <span>Connect Supabase</span>
-          <span class="btn-arrow">→</span>
-        </a>
-        <a class="provider-btn posthog" href="/api/auth/posthog">
-          <span class="provider-icon"><img src="/public/posthog.png" alt="" /></span>
-          <span>Connect PostHog</span>
-          <span class="btn-arrow">→</span>
-        </a>
+      <section id="marketplace">
+        <p class="privacy-note">Copy the command below. Run it in your terminal — no skill-key needed. Follow the prompts for local OAuth.</p>
+        <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.notion.com/mcp">
+          <div class="mcp-card-header">
+            <span class="provider-icon"><img src="/public/notion.png" alt="" /></span>
+            <span class="mcp-card-title">Notion</span>
+            <button type="button" class="copy-btn">Copy</button>
+          </div>
+          <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.notion.com/mcp</pre>
+        </div>
+        <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.posthog.com/mcp">
+          <div class="mcp-card-header">
+            <span class="provider-icon"><img src="/public/posthog.png" alt="" /></span>
+            <span class="mcp-card-title">PostHog</span>
+            <button type="button" class="copy-btn">Copy</button>
+          </div>
+          <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.posthog.com/mcp</pre>
+        </div>
+        <div class="mcp-card supabase" data-cmd="npx @filiksyos/mcptoskill https://mcp.supabase.com/mcp">
+          <div class="mcp-card-header">
+            <span class="provider-icon"><img src="/public/supabase.png" alt="" /></span>
+            <span class="mcp-card-title">Supabase</span>
+            <button type="button" class="copy-btn">Copy</button>
+          </div>
+          <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.supabase.com/mcp</pre>
+        </div>
       </section>
-      <p class="privacy-note">🔒 OAuth tokens are not stored — they're only held briefly until your CLI retrieves them.</p>
 
       <section id="success-section">
         <p id="success-check"></p>
@@ -694,6 +797,20 @@
             setTimeout(function () {
               copyBtn.textContent = 'Copy';
             }, 2000);
+          });
+        });
+
+        document.querySelectorAll('.mcp-card .copy-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var cmd = btn.closest('.mcp-card').dataset.cmd;
+            navigator.clipboard.writeText(cmd).then(function () {
+              btn.textContent = 'Copied!';
+              btn.classList.add('copied');
+              setTimeout(function () {
+                btn.textContent = 'Copy';
+                btn.classList.remove('copied');
+              }, 2000);
+            });
           });
         });
 
