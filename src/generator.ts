@@ -1,5 +1,7 @@
 import type { McpClientResult, Tool, ToolParam } from "./client.js";
 
+export type Target = "openclaw" | "hermes";
+
 export interface OAuthTokenInfo {
   access_token: string;
   refresh_token: string;
@@ -30,8 +32,16 @@ function buildExampleArgs(params: ToolParam[]): string {
   return `'${JSON.stringify(example)}'`;
 }
 
-function generateSkillMd(result: McpClientResult, skillName: string): string {
+function getScriptPathPrefix(skillName: string, target: Target): string {
+  return target === "hermes"
+    ? `$HOME/.hermes/skills/mcptoskill/${skillName}`
+    : `$HOME/.openclaw/skills/${skillName}`;
+}
+
+function generateSkillMd(result: McpClientResult, skillName: string, target: Target): string {
   const { serverInfo, tools, serverUrl } = result;
+  const scriptPathPrefix = getScriptPathPrefix(skillName, target);
+  const scriptPath = `${scriptPathPrefix}/scripts/${skillName}.sh`;
 
   const triggerPhrases = tools
     .map((t) => t.name.replace(/-/g, " "))
@@ -54,19 +64,11 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
         "",
         ...(paramLines.length > 0 ? ["**Parameters:**", ...paramLines, ""] : []),
         "```bash",
-        `$HOME/.openclaw/skills/${skillName}/scripts/${skillName}.sh ${t.name} ${exampleArgs}`,
+        `${scriptPath} ${t.name} ${exampleArgs}`,
         "```",
       ].join("\n");
     })
     .join("\n\n");
-
-  // requires.bins: [] — don't require curl; gateway's PATH at load time is often
-  // minimal (systemd/Docker), so bin checks fail. Script runs in agent context.
-  // always: true — bypass eligibility checks so skill reliably appears in list.
-  const metadataJson = JSON.stringify({
-    clawdbot: {},
-    openclaw: { requires: { bins: [] }, always: true },
-  });
 
   const desc = `${serverInfo.instructions ?? `Use ${serverInfo.name} tools.`} Triggers on: ${triggerPhrases}.`;
   const escapedDesc = desc
@@ -74,6 +76,47 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     .replace(/"/g, '\\"')
     .replace(/\n/g, "\\n")
     .replace(/\r/g, "\\r");
+
+  if (target === "hermes") {
+    const toolNames = tools.map((t) => t.name);
+    const metadataJson = JSON.stringify({
+      hermes: { tags: toolNames, category: "mcptoskill" },
+    });
+    return [
+      "---",
+      `name: ${skillName}`,
+      `description: "${escapedDesc}"`,
+      `version: 1.0.0`,
+      `author: mcptoskill`,
+      `license: MIT`,
+      `metadata: ${metadataJson}`,
+      "---",
+      "",
+      `# ${serverInfo.name}`,
+      "",
+      serverInfo.instructions ?? "",
+      "",
+      "## Quick Start",
+      "",
+      "```bash",
+      `${scriptPath} <tool-name> '<json-args>'`,
+      "```",
+      "",
+      "## Tools",
+      "",
+      toolDocs,
+    ]
+      .join("\n")
+      .trim() + "\n";
+  }
+
+  // OpenClaw: requires.bins: [] — don't require curl; gateway's PATH at load time is often
+  // minimal (systemd/Docker), so bin checks fail. Script runs in agent context.
+  // always: true — bypass eligibility checks so skill reliably appears in list.
+  const metadataJson = JSON.stringify({
+    clawdbot: {},
+    openclaw: { requires: { bins: [] }, always: true },
+  });
 
   return [
     "---",
@@ -91,7 +134,7 @@ function generateSkillMd(result: McpClientResult, skillName: string): string {
     "## Quick Start",
     "",
     "```bash",
-    `$HOME/.openclaw/skills/${skillName}/scripts/${skillName}.sh <tool-name> '<json-args>'`,
+    `${scriptPath} <tool-name> '<json-args>'`,
     "```",
     "",
     "## Tools",
@@ -440,11 +483,12 @@ export function generate(
   result: McpClientResult,
   nameOverride?: string,
   oauth?: OAuthTokenInfo,
+  target: Target = "openclaw",
 ): GeneratedSkill {
   const skillName = nameOverride ?? slugify(result.serverInfo.name);
   return {
     skillName,
-    skillMd: generateSkillMd(result, skillName),
+    skillMd: generateSkillMd(result, skillName, target),
     shellScript: oauth
       ? generateOAuthShellScript(result, skillName, oauth)
       : generateStaticShellScript(result, skillName),
