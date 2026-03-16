@@ -4,8 +4,7 @@ import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { existsSync } from "node:fs";
 import { connectAndDiscover } from "./client.js";
-import { generate } from "./generator.js";
-import type { OAuthTokenInfo } from "./generator.js";
+import { generate, type OAuthTokenInfo, type Target } from "./generator.js";
 import { getProviderByMcpUrl } from "./providers.js";
 import { runLocalOAuth } from "./oauth.js";
 
@@ -13,6 +12,7 @@ const OPENCLAW_DIR = join(homedir(), ".openclaw");
 const OPENCLAW_SKILLS_DIR = join(OPENCLAW_DIR, "skills");
 const OPENCLAW_CONFIG = join(OPENCLAW_DIR, "openclaw.json");
 const MCPTOSKILL_TOKENS_DIR = join(OPENCLAW_DIR, "mcptoskill", "tokens");
+const HERMES_SKILLS_DIR = join(homedir(), ".hermes", "skills", "mcptoskill");
 
 function parseArgs(argv: string[]): {
   url: string;
@@ -20,14 +20,27 @@ function parseArgs(argv: string[]): {
   outDir: string;
   headers: Record<string, string>;
   skillKey?: string;
+  target: Target;
 } {
   const args = argv.slice(2);
   const url = args.find((a) => !a.startsWith("--"));
   const nameFlag = args.find((a) => a.startsWith("--name="));
   const outFlag = args.find((a) => a.startsWith("--out="));
+  const targetFlag = args.find((a) => a.startsWith("--target="));
   const skillKeyFlag = args.find((a) => a.startsWith("--skill-key="));
   const skillKeyIdx = args.findIndex((a) => a === "--skill-key");
   const headers: Record<string, string> = {};
+
+  const targetRaw = targetFlag?.split("=")[1] ?? "openclaw";
+  let target: Target;
+  if (targetRaw === "hermes") {
+    target = "hermes";
+  } else if (targetRaw === "openclaw") {
+    target = "openclaw";
+  } else {
+    console.error(`Invalid --target: "${targetRaw}". Use openclaw or hermes.`);
+    process.exit(1);
+  }
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--header" && args[i + 1]) {
@@ -45,10 +58,11 @@ function parseArgs(argv: string[]): {
   }
 
   if (!url) {
-    console.error("Usage: mcptoskill <mcp-server-url> [--name=<skill-name>] [--out=<output-dir>] [--header \"Key: Value\"] [--skill-key=<key>]");
+    console.error("Usage: mcptoskill <mcp-server-url> [--target=openclaw|hermes] [--name=<skill-name>] [--out=<output-dir>] [--header \"Key: Value\"] [--skill-key=<key>]");
     console.error("");
     console.error("Examples:");
     console.error("  mcptoskill https://mcp.context7.com/mcp");
+    console.error("  mcptoskill https://mcp.context7.com/mcp --target=hermes");
     console.error("  mcptoskill https://mcp.notion.com/mcp          # local OAuth, follow prompts");
     console.error("  mcptoskill https://mcp.context7.com/mcp --name=context7 --out=./skills");
     console.error("  mcptoskill https://mcp.supabase.com/mcp?project_ref=XXX --header \"Authorization: Bearer sbp_xxx\"");
@@ -65,12 +79,15 @@ function parseArgs(argv: string[]): {
       ? args[skillKeyIdx + 1]
       : undefined);
 
+  const defaultOutDir = target === "hermes" ? HERMES_SKILLS_DIR : OPENCLAW_SKILLS_DIR;
+
   return {
     url,
     name: nameFlag?.split("=")[1],
-    outDir: outFlag?.split("=")[1] ?? OPENCLAW_SKILLS_DIR,
+    outDir: outFlag?.split("=")[1] ?? defaultOutDir,
     headers,
     skillKey,
+    target,
   };
 }
 
@@ -151,7 +168,7 @@ async function saveTokenFile(
 }
 
 async function main() {
-  const { url, name, outDir, headers, skillKey } = parseArgs(process.argv);
+  const { url, name, outDir, headers, skillKey, target } = parseArgs(process.argv);
 
   let oauthTokenInfo: OAuthTokenInfo | undefined;
   let tokenFilePath: string | undefined;
@@ -196,6 +213,12 @@ async function main() {
   let skillNameOverride: string | undefined;
   if (!skillKey && Object.keys(headers).length === 0) {
     const provider = getProviderByMcpUrl(url);
+    if (target === "hermes" && provider) {
+      console.error(
+        `Hermes target does not support OAuth for ${provider.name}. Use --header "Authorization: Bearer YOUR_TOKEN" with a token, or --target=openclaw for OAuth.`
+      );
+      process.exit(1);
+    }
     if (provider) {
       const oauthSkillName = name ?? `${provider.id}-mcp`;
       const oauthData = await runLocalOAuth(provider.id, oauthSkillName, url);
@@ -257,6 +280,7 @@ async function main() {
     result,
     skillName,
     oauthTokenInfo ? { ...oauthTokenInfo, tokenFilePath: tokenFilePath! } : undefined,
+    target,
   );
 
   const skillDir = join(outDir, finalSkillName);
@@ -279,6 +303,7 @@ async function main() {
   console.log(`✓ Copied to local workspace: ${localScriptPath}`);
 
   const isOpenClawInstall = resolve(outDir) === resolve(OPENCLAW_SKILLS_DIR);
+  const isHermesInstall = resolve(outDir) === resolve(HERMES_SKILLS_DIR);
 
   if (isOpenClawInstall) {
     await updateOpenClawConfig(finalSkillName);
@@ -291,6 +316,16 @@ async function main() {
     console.log("");
     console.log("Restart OpenClaw (or wait for auto-reload), then try:");
     console.log(`  "use ${result.serverInfo.name} to ${result.tools[0]?.name?.replace(/-/g, " ") ?? "run a tool"}"`);
+  } else if (isHermesInstall) {
+    console.log("");
+    console.log(`✓ Skill installed: ${finalSkillName}`);
+    console.log(`  ${skillDir}/`);
+    if (oauthTokenInfo) {
+      console.log(`  Token auto-refresh enabled (${oauthTokenInfo.provider})`);
+    }
+    console.log("");
+    console.log("Restart Hermes (or wait for skills watcher), then try:");
+    console.log(`  "/${finalSkillName}" or "use ${result.serverInfo.name} to ${result.tools[0]?.name?.replace(/-/g, " ") ?? "run a tool"}"`);
   } else {
     console.log("");
     console.log(`Generated skill: ${finalSkillName}`);
@@ -299,9 +334,11 @@ async function main() {
     if (oauthTokenInfo) {
       console.log(`  Token auto-refresh enabled (${oauthTokenInfo.provider})`);
     }
+    const installDir = target === "hermes" ? HERMES_SKILLS_DIR : OPENCLAW_SKILLS_DIR;
+    const targetName = target === "hermes" ? "Hermes" : "OpenClaw";
     console.log("");
-    console.log("To install in OpenClaw:");
-    console.log(`  cp -r ${skillDir} ${OPENCLAW_SKILLS_DIR}/`);
+    console.log(`To install in ${targetName}:`);
+    console.log(`  cp -r ${skillDir} ${installDir}/`);
   }
 
   console.log("");
