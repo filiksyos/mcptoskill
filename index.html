@@ -20,9 +20,10 @@
       }
 
       .wrapper {
-        max-width: 520px;
-        margin: 0 auto;
-        padding: 1rem 1.5rem;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 1rem 2rem;
         flex: 1;
       }
 
@@ -56,96 +57,6 @@
         font-size: 0.9rem;
         color: #666;
         margin: 0;
-      }
-
-      #form-section {
-        max-width: 520px;
-        margin: 0 auto;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 0.25rem;
-        font-weight: 500;
-      }
-
-      label span {
-        font-weight: normal;
-        color: #666;
-      }
-
-      input[type="url"],
-      input[type="text"] {
-        width: 100%;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
-      }
-
-      .error {
-        color: red;
-        font-size: 0.85rem;
-        display: none;
-        margin-top: 0.25rem;
-      }
-
-      .error.visible {
-        display: block;
-      }
-
-      small {
-        display: block;
-        font-size: 0.8rem;
-        color: #666;
-        margin-bottom: 1rem;
-      }
-
-      #generate-btn {
-        width: 100%;
-        padding: 0.75rem;
-        background: #000;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 1rem;
-      }
-
-      #output-section {
-        display: none;
-        margin-top: 2rem;
-      }
-
-      .output-box {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-      }
-
-      .output-box .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-      }
-
-      .output-box pre {
-        font-family: monospace;
-        white-space: pre-wrap;
-        word-break: break-all;
-        margin: 0;
-        font-size: 0.9rem;
-      }
-
-      #copy-btn {
-        padding: 0.35rem 0.75rem;
-        background: #f0f0f0;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
       }
 
       #success-section {
@@ -203,8 +114,14 @@
       }
 
       #marketplace {
-        max-width: 520px;
-        margin: 0 auto 1.5rem;
+        margin: 0 0 1.5rem;
+        padding: 0 1rem;
+      }
+
+      .mcp-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
       }
 
       .mcp-card {
@@ -212,7 +129,6 @@
         flex-direction: column;
         gap: 0.5rem;
         padding: 1rem 1.25rem;
-        margin-bottom: 0.75rem;
         background: #fff;
         border: 1px solid #ddd;
         border-radius: 10px;
@@ -225,8 +141,26 @@
       }
 
       .mcp-card-header .provider-icon {
-        width: 24px;
-        height: 24px;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mcp-card-header .provider-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .provider-icon-placeholder {
+        background: #e5e5e5;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #666;
       }
 
       .mcp-card-title {
@@ -270,154 +204,15 @@
         margin: 0;
       }
 
+      .mcp-card-note code {
+        font-size: 0.85em;
+        padding: 0.1em 0.3em;
+        background: #f0f0f0;
+        border-radius: 4px;
+      }
+
       .mcp-card.supabase .mcp-command {
         font-size: 0.8rem;
-      }
-
-      #oauth-section {
-        max-width: 520px;
-        margin: 0 auto 1rem;
-      }
-
-      .provider-btn {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.6rem;
-        width: 100%;
-        padding: 0.65rem 1rem;
-        margin-bottom: 0.5rem;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        text-decoration: none;
-        color: #111;
-        font-size: 0.95rem;
-      }
-
-      .provider-btn:hover {
-        border-color: #999;
-      }
-
-      .provider-btn .btn-arrow {
-        color: #999;
-        margin-left: auto;
-        font-size: 0.8rem;
-      }
-
-      .provider-btn.primary {
-        background: #000;
-        color: #fff;
-        border-color: #000;
-      }
-
-      .provider-btn.primary:hover {
-        border-color: #333;
-        background: #333;
-      }
-
-      .provider-btn.supabase {
-        background: #3ECF8E;
-        color: #fff;
-        border-color: #3ECF8E;
-      }
-
-      .provider-btn.posthog {
-        background: #F54F29;
-        color: #fff;
-        border-color: #F54F29;
-      }
-
-      .manual-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        margin: 1rem 0 0;
-        padding: 0.6rem 1rem;
-        font-size: 0.9rem;
-        color: #111;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-
-      .manual-toggle:hover {
-        border-color: #999;
-      }
-
-      .manual-section {
-        display: none;
-        margin-top: 1.5rem;
-      }
-
-      .manual-section.visible {
-        display: block;
-      }
-
-      .other-mcps {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-
-      .mcp-option {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.6rem;
-        width: 100%;
-        padding: 0.6rem 1rem;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        text-decoration: none;
-        color: #111;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .mcp-option:hover {
-        border-color: #999;
-      }
-
-      .mcp-option .btn-arrow {
-        color: #999;
-        font-size: 0.85rem;
-      }
-
-      .provider-icon {
-        display: flex;
-        align-items: center;
-        width: 20px;
-        height: 20px;
-        flex-shrink: 0;
-      }
-
-      .provider-icon img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
-
-      .or-divider {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        max-width: 520px;
-        margin: 0 auto 1.5rem;
-        font-size: 0.85rem;
-        color: #999;
-      }
-
-      .or-divider::before,
-      .or-divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e5e5e5;
       }
 
       .privacy-note {
@@ -450,36 +245,6 @@
           color: #999;
         }
 
-        label span {
-          color: #999;
-        }
-
-        input[type="url"],
-        input[type="text"] {
-          border-color: #444;
-          background: #222;
-          color: #eee;
-        }
-
-        small {
-          color: #999;
-        }
-
-        #generate-btn {
-          background: #fff;
-          color: #000;
-        }
-
-        .output-box {
-          border-color: #444;
-        }
-
-        #copy-btn {
-          background: #333;
-          border-color: #444;
-          color: #eee;
-        }
-
         #success-section {
           background: #052e16;
           border-color: #86efac;
@@ -496,57 +261,6 @@
 
         .success-hint {
           color: #999;
-        }
-
-        .provider-btn {
-          background: #222;
-          border-color: #444;
-          color: #eee;
-        }
-
-        .provider-btn:hover {
-          border-color: #666;
-        }
-
-        .provider-btn.primary {
-          background: #fff;
-          color: #000;
-          border-color: #fff;
-        }
-
-        .provider-btn.primary:hover {
-          background: #e5e5e5;
-          border-color: #e5e5e5;
-        }
-
-        .provider-btn.supabase {
-          background: #2db87a;
-          border-color: #2db87a;
-        }
-
-        .provider-btn.posthog {
-          background: #e54a21;
-          border-color: #e54a21;
-        }
-
-        .manual-toggle {
-          background: #222;
-          border-color: #444;
-          color: #eee;
-        }
-
-        .manual-toggle:hover {
-          border-color: #666;
-        }
-
-        .mcp-option {
-          background: #222;
-          border-color: #444;
-          color: #eee;
-        }
-
-        .mcp-option:hover {
-          border-color: #666;
         }
 
         .mcp-card {
@@ -571,13 +285,13 @@
           color: #999;
         }
 
-        .or-divider {
-          color: #999;
+        .mcp-card-note code {
+          background: #333;
         }
 
-        .or-divider::before,
-        .or-divider::after {
-          background: #333;
+        .provider-icon-placeholder {
+          background: #444;
+          color: #999;
         }
 
         .privacy-note {
@@ -601,35 +315,62 @@
     </header>
     <div class="wrapper">
       <section id="hero">
-        <h1>MCP to OpenClaw<br />in one command</h1>
-        <p>Turn any MCP server into an openclaw skill</p>
+        <h1>MCP to Skill</h1>
+        <p>Turn any MCP server into an OpenClaw or Hermes skill</p>
       </section>
 
       <section id="marketplace">
-        <p class="privacy-note">Copy the command below. Run it in your terminal — no skill-key needed. Follow the prompts for local OAuth.</p>
-        <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.notion.com/mcp">
-          <div class="mcp-card-header">
-            <span class="provider-icon"><img src="/public/notion.png" alt="" /></span>
-            <span class="mcp-card-title">Notion</span>
-            <button type="button" class="copy-btn">Copy</button>
+        <p class="privacy-note">Copy the command below. Run it in your terminal.</p>
+        <div class="mcp-grid">
+          <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.notion.com/mcp">
+            <div class="mcp-card-header">
+              <span class="provider-icon"><img src="/public/notion.png" alt="" /></span>
+              <span class="mcp-card-title">Notion</span>
+              <button type="button" class="copy-btn">Copy</button>
+            </div>
+            <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.notion.com/mcp</pre>
           </div>
-          <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.notion.com/mcp</pre>
-        </div>
-        <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.posthog.com/mcp">
-          <div class="mcp-card-header">
-            <span class="provider-icon"><img src="/public/posthog.png" alt="" /></span>
-            <span class="mcp-card-title">PostHog</span>
-            <button type="button" class="copy-btn">Copy</button>
+          <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.posthog.com/mcp">
+            <div class="mcp-card-header">
+              <span class="provider-icon"><img src="/public/posthog.png" alt="" /></span>
+              <span class="mcp-card-title">PostHog</span>
+              <button type="button" class="copy-btn">Copy</button>
+            </div>
+            <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.posthog.com/mcp</pre>
           </div>
-          <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.posthog.com/mcp</pre>
-        </div>
-        <div class="mcp-card supabase" data-cmd="npx @filiksyos/mcptoskill https://mcp.supabase.com/mcp">
-          <div class="mcp-card-header">
-            <span class="provider-icon"><img src="/public/supabase.png" alt="" /></span>
-            <span class="mcp-card-title">Supabase</span>
-            <button type="button" class="copy-btn">Copy</button>
+          <div class="mcp-card supabase" data-cmd="npx @filiksyos/mcptoskill https://mcp.supabase.com/mcp">
+            <div class="mcp-card-header">
+              <span class="provider-icon"><img src="/public/supabase.png" alt="" /></span>
+              <span class="mcp-card-title">Supabase</span>
+              <button type="button" class="copy-btn">Copy</button>
+            </div>
+            <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.supabase.com/mcp</pre>
           </div>
-          <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.supabase.com/mcp</pre>
+          <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.context7.com/mcp">
+            <div class="mcp-card-header">
+              <span class="provider-icon"><img src="https://www.google.com/s2/favicons?domain=context7.com&sz=32" alt="" /></span>
+              <span class="mcp-card-title">Context7</span>
+              <button type="button" class="copy-btn">Copy</button>
+            </div>
+            <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.context7.com/mcp</pre>
+          </div>
+          <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill https://mcp.exa.ai/mcp --name=exa">
+            <div class="mcp-card-header">
+              <span class="provider-icon"><img src="https://www.google.com/s2/favicons?domain=exa.ai&sz=32" alt="" /></span>
+              <span class="mcp-card-title">Exa MCP</span>
+              <button type="button" class="copy-btn">Copy</button>
+            </div>
+            <pre class="mcp-command">npx @filiksyos/mcptoskill https://mcp.exa.ai/mcp --name=exa</pre>
+          </div>
+          <div class="mcp-card" data-cmd="npx @filiksyos/mcptoskill &lt;mcp-url&gt;">
+            <div class="mcp-card-header">
+              <span class="provider-icon provider-icon-placeholder">+</span>
+              <span class="mcp-card-title">Custom MCP</span>
+              <button type="button" class="copy-btn">Copy</button>
+            </div>
+            <pre class="mcp-command">npx @filiksyos/mcptoskill &lt;mcp-url&gt;</pre>
+            <p class="mcp-card-note">Replace <code>&lt;mcp-url&gt;</code> with your MCP server URL</p>
+          </div>
         </div>
       </section>
 
@@ -639,49 +380,8 @@
           <code id="success-cmd"></code>
           <button id="success-copy-btn" type="button">Copy</button>
         </div>
-        <p class="success-hint">Run this on your OpenClaw environment</p>
+        <p class="success-hint">Run this in your terminal</p>
       </section>
-
-      <div class="other-mcps">
-        <button type="button" class="mcp-option" data-url="https://mcp.context7.com/mcp" data-token="" data-name="">
-          <span>Context7</span>
-          <span class="btn-arrow">Configure →</span>
-        </button>
-        <button type="button" class="mcp-option" data-url="https://mcp.exa.ai/mcp" data-token="" data-name="exa">
-          <span>Exa MCP</span>
-          <span class="btn-arrow">Configure →</span>
-        </button>
-      </div>
-      <button type="button" class="manual-toggle" id="manual-toggle">Add custom MCP</button>
-
-      <div class="manual-section" id="manual-section">
-      <section id="form-section">
-        <label for="url-input">Endpoint URL</label>
-        <input id="url-input" type="url" required placeholder="https://mcp.example.com/mcp" />
-        <p id="url-error" class="error">Please enter an MCP server URL</p>
-
-        <label for="token-input">Auth Token <span>(optional)</span></label>
-        <input id="token-input" type="text" />
-        <small>Bearer token value only — e.g. sbp_xxx</small>
-
-        <label for="name-input">Skill name <span>(optional)</span></label>
-        <input id="name-input" type="text" placeholder="e.g. exa" />
-        <small>Override auto-generated name — use "exa" for Exa MCP to avoid "mcp-typescript-server-on-vercel"</small>
-
-        <button id="generate-btn" type="button">Generate Command</button>
-      </section>
-
-      <section id="output-section">
-        <div class="output-box">
-          <div class="header-row">
-            <span>Your command</span>
-            <button id="copy-btn">Copy</button>
-          </div>
-          <pre id="command-output"></pre>
-        </div>
-        <p>Run this on your OpenClaw environment</p>
-      </section>
-      </div>
     </div>
     <footer>
       Built by <a href="https://x.com/filiksyos" target="_blank" rel="noopener">Fili</a> with <a href="https://traycer.ai" target="_blank" rel="noopener">Traycer</a>
@@ -722,88 +422,11 @@
             }
           }
         })();
-        var urlInput = document.getElementById('url-input');
-        var tokenInput = document.getElementById('token-input');
-        var nameInput = document.getElementById('name-input');
-        var urlError = document.getElementById('url-error');
-        var generateBtn = document.getElementById('generate-btn');
-        var commandOutput = document.getElementById('command-output');
-        var outputSection = document.getElementById('output-section');
-        var copyBtn = document.getElementById('copy-btn');
-        var formSection = document.getElementById('form-section');
-        var manualSection = document.getElementById('manual-section');
-        var manualToggle = document.getElementById('manual-toggle');
-
-        function showManualSection(fillUrl, fillToken, fillName) {
-          manualSection.classList.add('visible');
-          manualToggle.textContent = 'Hide';
-          if (fillUrl !== undefined) {
-            urlInput.value = fillUrl;
-            tokenInput.value = fillToken || '';
-            nameInput.value = fillName || '';
-          } else {
-            urlInput.value = '';
-            tokenInput.value = '';
-            nameInput.value = '';
-          }
-          outputSection.style.display = 'none';
-          urlError.classList.remove('visible');
-        }
-
-        manualToggle.addEventListener('click', function () {
-          if (manualSection.classList.contains('visible')) {
-            manualSection.classList.remove('visible');
-            manualToggle.textContent = 'Add custom MCP';
-          } else {
-            showManualSection();
-          }
-        });
-
-        document.querySelectorAll('.mcp-option').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            showManualSection(btn.dataset.url || '', btn.dataset.token || '', btn.dataset.name || '');
-            formSection.scrollIntoView({ behavior: 'smooth' });
-            urlInput.focus();
-          });
-        });
-
-        generateBtn.addEventListener('click', function () {
-          var url = urlInput.value.trim();
-          var token = tokenInput.value.trim();
-          var name = nameInput.value.trim();
-
-          if (!url) {
-            urlError.classList.add('visible');
-            return;
-          }
-
-          urlError.classList.remove('visible');
-
-          var command = 'npx @filiksyos/mcptoskill ' + url;
-          if (token) {
-            command += ' --header "Authorization: Bearer ' + token + '"';
-          }
-          if (name) {
-            command += ' --name=' + name;
-          }
-
-          commandOutput.textContent = command;
-          outputSection.style.display = 'block';
-        });
-
-        copyBtn.addEventListener('click', function () {
-          navigator.clipboard.writeText(commandOutput.textContent).then(function () {
-            copyBtn.textContent = 'Copied!';
-            setTimeout(function () {
-              copyBtn.textContent = 'Copy';
-            }, 2000);
-          });
-        });
-
         document.querySelectorAll('.mcp-card .copy-btn').forEach(function (btn) {
           btn.addEventListener('click', function () {
             var cmd = btn.closest('.mcp-card').dataset.cmd;
-            navigator.clipboard.writeText(cmd).then(function () {
+            var text = cmd.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            navigator.clipboard.writeText(text).then(function () {
               btn.textContent = 'Copied!';
               btn.classList.add('copied');
               setTimeout(function () {
