@@ -1,6 +1,6 @@
 {
   "name": "@filiksyos/mcptoskill",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Turn any MCP server into an OpenClaw or Hermes skill",
   "type": "module",
   "bin": {
