@@ -68,6 +68,12 @@ npx @filiksyos/mcptoskill "https://mcp.supabase.com/mcp?project_ref=YOUR_REF" --
 npx @filiksyos/mcptoskill "https://mcp.exa.ai/mcp?exaApiKey=YOUR_KEY"
 ```
 
+7. Render MCP (API key auth) — create an API key from [Render Dashboard → Account Settings → API Keys](https://dashboard.render.com/settings#api-keys):
+
+```
+npx @filiksyos/mcptoskill https://mcp.render.com/mcp --header "Authorization: Bearer YOUR_RENDER_API_KEY"
+```
+
 **VPS / headless** — Run the CLI on a remote machine. When prompted, open the auth URL on your laptop, complete OAuth, then copy the redirect URL from the address bar and paste it into the SSH terminal. No server needs to listen on localhost.
 
 **What gets generated** — two files are created:
