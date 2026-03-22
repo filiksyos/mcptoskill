@@ -205,8 +205,10 @@ async function main() {
       oauthData = await runLocalOAuth(provider.id, oauthSkillName, url);
       headers["Authorization"] = `Bearer ${oauthData.access_token}`;
     } else if (authChoice === "api_key") {
-      const token = await promptApiKey();
-      headers["Authorization"] = `Bearer ${token}`;
+      if (!headers["Authorization"]) {
+        const token = await promptApiKey();
+        headers["Authorization"] = `Bearer ${token}`;
+      }
     }
   }
 
